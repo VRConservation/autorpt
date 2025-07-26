@@ -27,16 +27,16 @@ test_requirements = [ ]
 setup(
     author="Vance Russell",
     author_email='vance@3point.xyz',
-    python_requires='>=3.8',
+    python_requires='>=3.9',
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
     ],
     description="python package to create a grant management report",
     install_requires=install_requires,
