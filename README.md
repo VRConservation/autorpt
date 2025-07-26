@@ -10,7 +10,7 @@
 
 
 - Free software: MIT license
-- Documentation: https://VRConservation.github.io/autorpt
+- Documentation: 3point.xyz/autorpt
     
 
 ## Features
