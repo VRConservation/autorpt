@@ -38,7 +38,7 @@ setup(
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
     ],
-    description="python package to create a grant management report",
+    description="Automated budget report generator for grant management with Excel input and Word output",
     install_requires=install_requires,
     dependency_links=dependency_links,
     license="MIT license",
@@ -54,4 +54,9 @@ setup(
     url='https://github.com/VRConservation/autorpt',
     version='0.0.2',
     zip_safe=False,
+    entry_points={
+        'console_scripts': [
+            'autorpt=autorpt.autorpt:main',
+        ],
+    },
 )
