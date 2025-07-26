@@ -1,7 +1,6 @@
 # autorpt
 
 [![image](https://img.shields.io/pypi/v/autorpt.svg)](https://pypi.python.org/pypi/autorpt)
-[![image](https://img.shields.io/conda/vn/conda-forge/autorpt.svg)](https://anaconda.org/conda-forge/autorpt)
 [![image](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Automated budget report generator for grant management with Excel input and Word output**
