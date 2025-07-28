@@ -35,12 +35,12 @@ class ReportGenerator:
         """Ensure unique filename by adding increment if file exists"""
         if not base_filepath.exists():
             return base_filepath
-        
+
         # If file exists, add increment: project_report_2025-01-25_v2.docx
         name_stem = base_filepath.stem  # project_report_2025-01-25
         extension = base_filepath.suffix  # .docx
         parent_dir = base_filepath.parent
-        
+
         counter = 2
         while True:
             new_filename = f"{name_stem}_v{counter}{extension}"
@@ -49,51 +49,52 @@ class ReportGenerator:
                 print(f"📝 File exists, creating new version: {new_filename}")
                 return new_filepath
             counter += 1
-            
+
             # Safety break to avoid infinite loop
             if counter > 100:
                 # Use timestamp as fallback
                 timestamp = datetime.now().strftime("%H%M%S")
                 return parent_dir / f"{name_stem}_{timestamp}{extension}"
-            
+
     def _load_content_sections(self):
         """Load and cache all sections from content.md file once"""
         if self._content_sections is not None:
             return self._content_sections
-            
+
         try:
             content_file = Path('content.md')
             if not content_file.exists():
                 print(f"Info: content.md not found, using default content")
                 self._content_sections = {}
                 return self._content_sections
-                
+
             with open(content_file, 'r', encoding='utf-8') as f:
                 content = f.read()
-            
+
             # Split content by headers (# Section Name)
             sections = {}
             current_section = None
             current_content = []
-            
+
             for line in content.split('\n'):
                 if line.startswith('# '):
                     # Save previous section if exists
                     if current_section:
-                        sections[current_section] = '\n'.join(current_content).strip()
+                        sections[current_section] = '\n'.join(
+                            current_content).strip()
                     # Start new section
                     current_section = line[2:].strip()  # Remove '# '
                     current_content = []
                 else:
                     current_content.append(line)
-            
+
             # Save last section
             if current_section:
                 sections[current_section] = '\n'.join(current_content).strip()
-            
+
             self._content_sections = sections
             return self._content_sections
-            
+
         except Exception as e:
             print(f"Error reading content.md: {e}")
             self._content_sections = {}
@@ -136,14 +137,15 @@ class ReportGenerator:
         """Efficiently remove borders from table"""
         # Set table style to None to remove default borders
         table.style = None
-        
+
         # Remove borders at XML level for all existing and new cells
         for row in table.rows:
             for cell in row.cells:
                 tc = cell._tc
                 tcPr = tc.get_or_add_tcPr()
                 # Remove borders if they exist
-                tcBorders = tcPr.find('.//{http://schemas.openxmlformats.org/wordprocessingml/2006/main}tcBorders')
+                tcBorders = tcPr.find(
+                    './/{http://schemas.openxmlformats.org/wordprocessingml/2006/main}tcBorders')
                 if tcBorders is not None:
                     tcPr.remove(tcBorders)
 
@@ -153,11 +155,11 @@ class ReportGenerator:
             # Set font size
             if paragraph.runs:
                 paragraph.runs[0].font.size = Pt(11)
-            
+
             # Right-align numeric columns (1, 2, 3)
             if column_index in [1, 2, 3]:
                 paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            
+
             # Bold formatting for headers and totals
             if is_header or is_total_row:
                 for run in paragraph.runs:
@@ -207,7 +209,8 @@ Key metrics include budget utilization rates, remaining fund allocation, and pro
 - Current status of ongoing deliverables
 - Any adjustments to delivery schedules"""
 
-        self.add_markdown_content('Deliverables Progress', default_deliverables)
+        self.add_markdown_content(
+            'Deliverables Progress', default_deliverables)
         print("✅ Deliverables Progress section added")
 
     def add_budget_table(self):
@@ -231,7 +234,7 @@ Key metrics include budget utilization rates, remaining fund allocation, and pro
 
         # Create table
         table = self.document.add_table(rows=1, cols=len(self.data.columns))
-        
+
         # Remove all borders efficiently
         self._remove_table_borders(table)
 
@@ -244,26 +247,29 @@ Key metrics include budget utilization rates, remaining fund allocation, and pro
         # Add data rows efficiently
         for i, row_data in self.data.iterrows():
             row_cells = table.add_row().cells
-            
+
             # Remove borders from new row
             for cell in row_cells:
                 tc = cell._tc
                 tcPr = tc.get_or_add_tcPr()
-                tcBorders = tcPr.find('.//{http://schemas.openxmlformats.org/wordprocessingml/2006/main}tcBorders')
+                tcBorders = tcPr.find(
+                    './/{http://schemas.openxmlformats.org/wordprocessingml/2006/main}tcBorders')
                 if tcBorders is not None:
                     tcPr.remove(tcBorders)
-            
+
             is_total_row = 'TOTAL' in str(row_data.iloc[0]).upper()
-            
+
             for j, cell_value in enumerate(row_data):
                 # Format numbers with commas if numeric
                 if pd.api.types.is_numeric_dtype(type(cell_value)) and pd.notna(cell_value):
-                    row_cells[j].text = f"{cell_value:,.0f}" if cell_value == int(cell_value) else f"{cell_value:,.2f}"
+                    row_cells[j].text = f"{cell_value:,.0f}" if cell_value == int(
+                        cell_value) else f"{cell_value:,.2f}"
                 else:
                     row_cells[j].text = str(cell_value)
-                
+
                 # Apply formatting
-                self._format_cell_alignment(row_cells[j], j, is_total_row=is_total_row)
+                self._format_cell_alignment(
+                    row_cells[j], j, is_total_row=is_total_row)
 
         print("✅ Budget table added")
         return True
@@ -273,7 +279,7 @@ Key metrics include budget utilization rates, remaining fund allocation, and pro
         # Add space and intro sentence
         self.document.add_paragraph("")  # Empty paragraph for spacing
         self.document.add_paragraph("Summary of budget status:")
-        
+
         # Generate dynamic key points based on data
         key_points = []
 
@@ -281,19 +287,22 @@ Key metrics include budget utilization rates, remaining fund allocation, and pro
             # Calculate insights efficiently
             total_budgeted = self.data['Budgeted'].sum()
             total_remaining = self.data['Remaining'].sum()
-            utilization_rate = ((total_budgeted - total_remaining) / total_budgeted * 100) if total_budgeted > 0 else 0
+            utilization_rate = ((total_budgeted - total_remaining) /
+                                total_budgeted * 100) if total_budgeted > 0 else 0
 
             # Find highest and lowest utilization tasks efficiently
-            self.data['Utilization%'] = ((self.data['Budgeted'] - self.data['Remaining']) / self.data['Budgeted'] * 100).round(1)
+            self.data['Utilization%'] = (
+                (self.data['Budgeted'] - self.data['Remaining']) / self.data['Budgeted'] * 100).round(1)
 
             if len(self.data) > 1:
                 # Filter out totals row efficiently
-                non_total_data = self.data[~self.data['Task'].str.contains('TOTAL', case=False, na=False)] if 'Task' in self.data.columns else self.data
-                
+                non_total_data = self.data[~self.data['Task'].str.contains(
+                    'TOTAL', case=False, na=False)] if 'Task' in self.data.columns else self.data
+
                 if len(non_total_data) > 0:
                     highest_util_idx = non_total_data['Utilization%'].idxmax()
                     lowest_util_idx = non_total_data['Utilization%'].idxmin()
-                    
+
                     highest_util = non_total_data.loc[highest_util_idx]
                     lowest_util = non_total_data.loc[lowest_util_idx]
 
@@ -333,41 +342,48 @@ Key metrics include budget utilization rates, remaining fund allocation, and pro
             plt.ioff()
 
             # Filter out TOTALS row for better visualization
-            chart_data = self.data[~self.data['Task'].str.contains('TOTAL', case=False, na=False)] if 'Task' in self.data.columns else self.data
+            chart_data = self.data[~self.data['Task'].str.contains(
+                'TOTAL', case=False, na=False)] if 'Task' in self.data.columns else self.data
 
             if len(chart_data) == 0:
                 chart_data = self.data
 
             # Create chart more efficiently
             fig, ax = plt.subplots(figsize=(12, 8))
-            
+
             # Plot data
             x_pos = range(len(chart_data))
-            ax.bar([x - 0.2 for x in x_pos], chart_data['Budgeted'], 0.4, label='Budgeted', color='#2E8B57')
-            ax.bar([x + 0.2 for x in x_pos], chart_data['Remaining'], 0.4, label='Remaining', color='#4169E1')
-            
+            ax.bar([x - 0.2 for x in x_pos], chart_data['Budgeted'],
+                   0.4, label='Budgeted', color='#2E8B57')
+            ax.bar([x + 0.2 for x in x_pos], chart_data['Remaining'],
+                   0.4, label='Remaining', color='#4169E1')
+
             # Formatting
-            ax.set_title('Budget Status by Task', fontsize=16, fontweight='bold', pad=20)
+            ax.set_title('Budget Status by Task', fontsize=16,
+                         fontweight='bold', pad=20)
             ax.set_xlabel('Project Tasks', fontsize=12)
             ax.set_ylabel('Amount ($)', fontsize=12)
             ax.set_xticks(x_pos)
-            ax.set_xticklabels(chart_data['Task'] if 'Task' in chart_data.columns else chart_data.index, 
-                              rotation=45, ha='right')
+            ax.set_xticklabels(chart_data['Task'] if 'Task' in chart_data.columns else chart_data.index,
+                               rotation=45, ha='right')
             ax.legend(loc='upper right')
-            ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'{x:,.0f}'))
+            ax.yaxis.set_major_formatter(
+                plt.FuncFormatter(lambda x, p: f'{x:,.0f}'))
             ax.grid(axis='y', alpha=0.3)
 
             plt.tight_layout()
 
             # Save chart
             chart_filename = 'budget_chart.png'
-            plt.savefig(chart_filename, bbox_inches='tight', dpi=300, facecolor='white')
+            plt.savefig(chart_filename, bbox_inches='tight',
+                        dpi=300, facecolor='white')
 
             # Add to document
             self.document.add_picture(chart_filename, width=Inches(6.5))
-            
+
             # Add figure caption in 9pt font
-            caption_paragraph = self.document.add_paragraph("Figure 1: Total amounts budgeted and remaining by project task.")
+            caption_paragraph = self.document.add_paragraph(
+                "Figure 1: Total amounts budgeted and remaining by project task.")
             caption_run = caption_paragraph.runs[0]
             caption_run.font.size = Pt(9)
 
@@ -404,7 +420,8 @@ Key metrics include budget utilization rates, remaining fund allocation, and pro
 - Resource requirements and allocation plans
 - Key milestones and target completion dates"""
 
-        self.add_markdown_content('Next Period Activities', default_next_period)
+        self.add_markdown_content(
+            'Next Period Activities', default_next_period)
         print("✅ Next Period Activities section added")
 
     def save_document(self):
@@ -416,6 +433,26 @@ Key metrics include budget utilization rates, remaining fund allocation, and pro
         except Exception as e:
             print(f"❌ Error saving document: {e}")
             return False
+
+    def rpt_pdf(self, word_file=None):
+        """Convert Word report to PDF with the same name"""
+        # Import pdf module - handle both package and script execution contexts
+        try:
+            from .pdf import convert_to_pdf
+        except ImportError:
+            # If relative import fails, try absolute import for script execution
+            import sys
+            from pathlib import Path
+            current_dir = Path(__file__).parent
+            sys.path.insert(0, str(current_dir))
+            from pdf import convert_to_pdf
+
+        # Use the current output file if no word_file specified
+        if word_file is None:
+            word_file = self.output_file
+
+        success, result = convert_to_pdf(word_file)
+        return success
 
     def generate_report(self):
         """Generate the complete report"""
@@ -454,11 +491,27 @@ Key metrics include budget utilization rates, remaining fund allocation, and pro
 def main():
     """Main function with command line argument support"""
     parser = argparse.ArgumentParser(
-        description='Generate automated budget report')
+        description='Generate automated budget report',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python autorpt.py                               # Generate Word report
+  python autorpt.py --pdf                         # Generate Word + PDF
+  python autorpt.py --pdf-only                    # Convert existing reports to PDF
+  python autorpt.py --pdf-all                     # Convert all reports to PDF
+  python autorpt.py -i budget.xlsx --pdf          # Custom input with PDF
+        """)
+
     parser.add_argument('--input', '-i', default='budget.xlsx',
                         help='Input Excel file (default: budget.xlsx)')
     parser.add_argument('--output', '-o',
                         help='Output Word document filename')
+    parser.add_argument('--pdf', '-p', action='store_true',
+                        help='Also convert the report to PDF')
+    parser.add_argument('--pdf-only', action='store_true',
+                        help='Only convert existing Word reports to PDF (no new report generation)')
+    parser.add_argument('--pdf-all', action='store_true',
+                        help='Convert all Word reports in reports/ folder to PDF')
     parser.add_argument('--verbose', '-v', action='store_true',
                         help='Enable verbose output')
 
@@ -468,12 +521,102 @@ def main():
         print("🔧 Verbose mode enabled")
         print(f"📁 Input file: {args.input}")
         print(f"📄 Output file: {args.output or 'auto-generated'}")
+        if args.pdf:
+            print("📄 PDF conversion enabled")
+        if args.pdf_only:
+            print("📄 PDF-only mode (no report generation)")
+        if args.pdf_all:
+            print("📄 Converting all reports to PDF")
 
-    # Generate report
+    # Handle PDF-only operations
+    if args.pdf_only or args.pdf_all:
+        # Import pdf module - handle both package and script execution contexts
+        try:
+            from .pdf import convert_to_pdf, convert_all_reports
+        except ImportError:
+            # If relative import fails, try absolute import for script execution
+            import sys
+            from pathlib import Path
+            current_dir = Path(__file__).parent
+            sys.path.insert(0, str(current_dir))
+            from pdf import convert_to_pdf, convert_all_reports
+
+        if args.pdf_all:
+            print("📁 Converting all Word reports to PDF...")
+            results = convert_all_reports("reports")
+            success = results["failed"] == 0
+            if success:
+                print(
+                    f"🎉 Successfully converted {results['success']} report(s) to PDF!")
+            else:
+                print(
+                    f"⚠️  Converted {results['success']} report(s), but {results['failed']} failed")
+        elif args.pdf_only:
+            # Convert the most recent report or specified output file
+            if args.output:
+                report_file = f"reports/{args.output}"
+            else:
+                # Find the most recent report
+                from pathlib import Path
+                from datetime import datetime
+                reports_dir = Path('reports')
+                if reports_dir.exists():
+                    docx_files = sorted(reports_dir.glob(
+                        "*.docx"), key=lambda x: x.stat().st_mtime, reverse=True)
+                    if docx_files:
+                        report_file = str(docx_files[0])
+                        print(
+                            f"🔍 Converting most recent report: {docx_files[0].name}")
+                    else:
+                        print("❌ No Word reports found in reports/ folder")
+                        return 1
+                else:
+                    print("❌ Reports directory not found")
+                    return 1
+
+            success, result = convert_to_pdf(report_file)
+            if success:
+                print(f"🎉 PDF conversion completed successfully!")
+            else:
+                print(f"❌ PDF conversion failed: {result}")
+
+        return 0 if success else 1
+
+    # Normal report generation flow
     generator = ReportGenerator(args.input, args.output)
     success = generator.generate_report()
 
+    # Convert to PDF if requested and report generation was successful
+    if success and args.pdf:
+        pdf_success = generator.rpt_pdf()
+        if not pdf_success:
+            print("⚠️  Report generated successfully but PDF conversion failed")
+
     return 0 if success else 1
+
+
+def convert_to_pdf(word_file):
+    """Standalone function to convert a Word document to PDF
+
+    Args:
+        word_file (str): Path to the Word document to convert
+
+    Returns:
+        bool: True if conversion successful, False otherwise
+    """
+    # Import pdf module - handle both package and script execution contexts
+    try:
+        from .pdf import convert_to_pdf as pdf_convert
+    except ImportError:
+        # If relative import fails, try absolute import for script execution
+        import sys
+        from pathlib import Path
+        current_dir = Path(__file__).parent
+        sys.path.insert(0, str(current_dir))
+        from pdf import convert_to_pdf as pdf_convert
+
+    success, result = pdf_convert(word_file)
+    return success
 
 
 if __name__ == "__main__":
