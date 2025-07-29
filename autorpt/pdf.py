@@ -96,8 +96,7 @@ def _cleanup_word_processes():
     try:
         import subprocess
         # Kill any hanging WINWORD.EXE processes
-        subprocess.run(['taskkill', '/f', '/im', 'WINWORD.EXE'],
-                       capture_output=True, check=False)
+        subprocess.run(['taskkill', '/f', '/im', 'WINWORD.EXE'], capture_output=True, check=False)
         time.sleep(1)  # Give time for processes to terminate
     except Exception:
         # If cleanup fails, just continue - it's not critical
