@@ -81,6 +81,7 @@ nav:
     - Report Issues: https://github.com/VRConservation/autorpt/issues
     - Examples:
         - examples/intro.ipynb
+        - examples/pdf.ipynb
     - API Reference:
           - autorpt module: autorpt.md
           - common module: common.md
