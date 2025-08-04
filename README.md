@@ -3,23 +3,25 @@
 [![image](https://img.shields.io/pypi/v/autorpt.svg)](https://pypi.python.org/pypi/autorpt)
 [![image](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Automated content discovery and report generator with Excel and Markdown support**
+**autorpt is an automated word and pdf report generator using Excel and Markdown files**
 
--   Free software: MIT license
--   Documentation: https://VRConservation.github.io/autorpt
+- User works from a folder with two files in the reports folder of this repo: [content.md](https://github.com/VRConservation/autorpt/blob/main/reports/content.md) and [budget.xlsx](https://github.com/VRConservation/autorpt/blob/main/reports/budget.xlsx). The two files can be downloaded at the links provided and copied to a folder on your local drive.
+- Copy and adapt the files or add your own files to generate the reports. 
+- See basic usage section below for how to set it up. Videos coming soon.
+- Documentation: https://VRConservation.github.io/autorpt.
 
 ## Features
 
--   **Auto-Discovery**: Automatically finds and combines all `.md` and `.xlsx` files in your content folder
--   **Excel Table Integration**: Any Excel file becomes a formatted table in your report
--   **Markdown Content**: Write content in markdown format for easy editing and version control
--   **Mixed Content Support**: Combine multiple markdown files and Excel tables in one report
--   **Customizable Content**: Use example files or create your own content structure
--   **Command Line Interface**: Simple commands for different workflows
--   **Python API**: Use programmatically in your own scripts
--   **Visual Charts**: Automatically generates budget comparison charts
--   **Professional Formatting**: Clean, business-ready Word document output
--   **PDF Conversion**: Built-in PDF generation from Word documents
+- **Auto-Discovery**: Automatically finds and combines all `.md` and `.xlsx` files in your content folder
+- **Excel Table Integration**: Any Excel file becomes a formatted table in your report
+- **Markdown Content**: Write content in markdown format for easy editing and version control
+- **Mixed Content Support**: Combine multiple markdown files and Excel tables in one report
+- **Customizable Content**: Use example files or create your own content structure
+- **Command Line Interface**: Simple commands for different workflows
+- **Python API**: Use programmatically in your own scripts
+- **Visual Charts**: Automatically generates budget comparison charts
+- **Professional Formatting**: Clean, business-ready Word document output
+- **PDF Conversion**: Built-in PDF generation from Word documents
 
 ## Quick Start
 
@@ -93,8 +95,8 @@ Your custom summary content here...
 
 # Deliverables Progress
 
--   Custom deliverable 1
--   Custom deliverable 2
+- Custom deliverable 1
+- Custom deliverable 2
 
 # Challenges
 
@@ -130,27 +132,27 @@ autorpt --excel data.xlsx         # Add specific Excel file
 autorpt --mixed file1.md data.xlsx  # Add multiple specific files
 ```
 
-**Key Options:**
+**Key Options**
 
--   `--auto-content`: Auto-discover and combine all .md and .xlsx files from content folder
--   `--content-folder`: Specify which folder to scan (default: reports)
--   `--input, -i`: Input Excel file (default: budget.xlsx)
--   `--output, -o`: Output Word document filename
--   `--markdown, -m`: Add specific markdown file to report
--   `--excel, -e`: Add specific Excel file as table
--   `--mixed`: Add multiple specific files (markdown and/or Excel)
--   `--pdf, -p`: Also convert the report to PDF
--   `--pdf-only`: Convert most recent report to PDF (no new generation)
--   `--pdf-all`: Convert all Word reports to PDF
--   `--verbose, -v`: Enable verbose output
+- `--auto-content`: Auto-discover and combine all .md and .xlsx files from content folder
+- `--content-folder`: Specify which folder to scan (default: reports)
+- `--input, -i`: Input Excel file (default: budget.xlsx)
+- `--output, -o`: Output Word document filename
+- `--markdown, -m`: Add specific markdown file to report
+- `--excel, -e`: Add specific Excel file as table
+- `--mixed`: Add multiple specific files (markdown and/or Excel)
+- `--pdf, -p`: Also convert the report to PDF
+- `--pdf-only`: Convert most recent report to PDF (no new generation)
+- `--pdf-all`: Convert all Word reports to PDF
+- `--verbose, -v`: Enable verbose output
 
 ## PDF Conversion
 
 autorpt includes built-in PDF conversion capabilities. See the `pdf/` folder for:
 
--   Complete PDF documentation (`pdf/PDF_README.md`)
--   Helper scripts for easy PDF operations
--   Simple command aliases setup
+- Complete PDF documentation (`pdf/PDF_README.md`)
+- Helper scripts for easy PDF operations
+- Simple command aliases setup
 
 Quick PDF usage:
 
@@ -169,10 +171,10 @@ pdf-new                           # Generate new report + PDF
 
 The package generates:
 
--   Professional Word document in `reports/` folder with combined content
--   Automatic integration of all markdown content as formatted sections
--   Excel data converted to professional tables with proper formatting
--   Optional PDF conversion of reports
--   Budget comparison charts (when budget data is included)
--   Summary statistics and insights from your data
--   Clean, business-ready formatting throughout
+- Professional Word document in the `reports/` folder using sample or user added content.md and budget.xlsx files.
+- Automatic integration of all markdown content as formatted sections.
+- Excel data converted to professional tables with proper formatting into the Word document.
+- Optional PDF conversion of reports.
+- Budget comparison charts (when budget data is included).
+- Summary statistics and insights from your budget data.
+

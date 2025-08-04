@@ -6,7 +6,6 @@ Full [changelog](https://github.com/VRConservation/autorpt/releases)
 **Changed**:
 
 - Removed hard coding for content and excel files
-- Full Changelog: v0.1.1...v0.1.2
 
 ## v0.1.1 - July 2025
 
