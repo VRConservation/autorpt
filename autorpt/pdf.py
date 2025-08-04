@@ -71,7 +71,7 @@ def convert_to_pdf(word_file, output_dir=None, max_retries=2):
                     print(error_msg)
                     return False, error_msg
 
-        except Exception as e:
+        except (OSError, PermissionError, ImportError) as e:
             error_msg = f"❌ Error converting to PDF: {e}"
 
             if attempt < max_retries:
@@ -96,9 +96,9 @@ def _cleanup_word_processes():
     try:
         import subprocess
         # Kill any hanging WINWORD.EXE processes
-        subprocess.run(['taskkill', '/f', '/im', 'WINWORD.EXE'], capture_output=True, check=False)
+        subprocess.run(['taskkill', '/f', '/im', 'WINWORD.EXE'],capture_output=True, check=False)
         time.sleep(1)  # Give time for processes to terminate
-    except Exception:
+    except (OSError, ImportError):
         # If cleanup fails, just continue - it's not critical
         pass
 
@@ -147,12 +147,12 @@ def convert_all_reports(reports_dir="reports", output_dir=None):
             results["errors"].append(f"{word_file.name}: {result_msg}")
 
     # Print summary
-    print(f"\n📊 Conversion Summary:")
+    print("\n📊 Conversion Summary:")
     print(f"   ✅ Successful: {results['success']}")
     print(f"   ❌ Failed: {results['failed']}")
 
     if results["errors"]:
-        print(f"   📝 Errors:")
+        print("   📝 Errors:")
         for error in results["errors"]:
             print(f"      - {error}")
 
@@ -173,12 +173,17 @@ python pdf.py -f report.docx -o output          # Convert single file to output/
         """)
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--file', '-f', help='Convert a specific Word document to PDF')
-    group.add_argument('--all', '-a', action='store_true', help='Convert all Word documents in reports directory')
+    group.add_argument(
+        '--file', '-f', help='Convert a specific Word document to PDF')
+    group.add_argument('--all', '-a', action='store_true',
+                       help='Convert all Word documents in reports directory')
 
-    parser.add_argument('--dir', '-d', default='reports', help='Input directory for --all option (default: reports)')
-    parser.add_argument('--output', '-o',help='Output directory for PDF files (default: same as input)')
-    parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose output')
+    parser.add_argument('--dir', '-d', default='reports',
+                        help='Input directory for --all option (default: reports)')
+    parser.add_argument(
+        '--output', '-o', help='Output directory for PDF files (default: same as input)')
+    parser.add_argument('--verbose', '-v', action='store_true',
+                        help='Enable verbose output')
 
     args = parser.parse_args()
 

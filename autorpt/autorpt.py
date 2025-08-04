@@ -93,7 +93,7 @@ class ReportGenerator:
                 f"📄 Loaded {len(self._content_sections)} sections from content.md")
             return self._content_sections
 
-        except Exception as e:
+        except (FileNotFoundError, UnicodeDecodeError) as e:
             print(f"❌ Error loading content.md: {e}")
             return {}
 
@@ -132,7 +132,7 @@ class ReportGenerator:
                 # Handle bullet points (markdown style) - removed bold formatting
                 if line.startswith('- '):
                     bullet_text = line[2:].strip()
-                    p = self.document.add_paragraph(
+                    self.document.add_paragraph(
                         bullet_text, style='List Bullet')
                 else:
                     # Regular paragraph
@@ -159,7 +159,6 @@ class ReportGenerator:
                 from autorpt.gen_auto import add_markdown_to_existing_document
             except ImportError:
                 import sys
-                from pathlib import Path
                 current_dir = Path(__file__).parent
                 sys.path.insert(0, str(current_dir))
                 try:
@@ -189,7 +188,6 @@ class ReportGenerator:
                 from autorpt.gen_auto import add_excel_table_to_existing_document
             except ImportError:
                 import sys
-                from pathlib import Path
                 current_dir = Path(__file__).parent
                 sys.path.insert(0, str(current_dir))
                 try:
@@ -219,7 +217,6 @@ class ReportGenerator:
                 from autorpt.gen_auto import add_mixed_content_to_existing_document
             except ImportError:
                 import sys
-                from pathlib import Path
                 current_dir = Path(__file__).parent
                 sys.path.insert(0, str(current_dir))
                 try:
@@ -247,7 +244,6 @@ class ReportGenerator:
                 from autorpt.gen_auto import AutoReportGenerator
             except ImportError:
                 import sys
-                from pathlib import Path
                 current_dir = Path(__file__).parent
                 sys.path.insert(0, str(current_dir))
                 try:
@@ -262,7 +258,6 @@ class ReportGenerator:
 
     def _remove_table_borders(self, table):
         """Remove all borders from table for cleaner look"""
-        from docx.oxml.shared import qn
         from docx.oxml import parse_xml
 
         # Create XML for no borders
@@ -278,7 +273,9 @@ class ReportGenerator:
         """
 
         borders_element = parse_xml(no_border_xml)
-        table._tbl.tblPr.append(borders_element)
+        # Access protected member for low-level XML manipulation (required for border removal)
+        table._tbl.tblPr.append(
+            borders_element)  # pylint: disable=protected-access
 
     def _format_cell_alignment(self, cell, column_index, is_header=False, is_total_row=False):
         """Format cell alignment based on content type"""
@@ -316,7 +313,7 @@ class ReportGenerator:
 
             return True
 
-        except Exception as e:
+        except (FileNotFoundError, ValueError, pd.errors.EmptyDataError) as e:
             print(f"❌ Error loading Excel file: {e}")
             return False
 
@@ -432,7 +429,7 @@ class ReportGenerator:
 
             print("✅ Budget chart created successfully")
 
-        except Exception as e:
+        except (ValueError, OSError) as e:
             print(f"❌ Error creating budget chart: {e}")
 
     def add_summary_section(self):
@@ -494,7 +491,7 @@ The budget distribution shows a strategic allocation of resources across differe
                     default_findings = """Key findings from the budget analysis include strategic resource allocation and alignment with project objectives."""
                     self.add_markdown_content('Findings', default_findings)
 
-            except Exception as e:
+            except (ValueError, KeyError, TypeError) as e:
                 print(f"⚠️  Error generating insights: {e}")
                 default_findings = """Key findings from the budget analysis include strategic resource allocation and alignment with project objectives."""
                 self.add_markdown_content('Findings', default_findings)
@@ -609,7 +606,6 @@ The budget distribution shows a strategic allocation of resources across differe
             except ImportError:
                 # If both fail, try adding current directory to path (for script execution)
                 import sys
-                from pathlib import Path
                 current_dir = Path(__file__).parent
                 sys.path.insert(0, str(current_dir))
                 try:
@@ -672,7 +668,7 @@ The budget distribution shows a strategic allocation of resources across differe
             print(f"✅ Report generated successfully: {self.output_file}")
             return True
 
-        except Exception as e:
+        except (OSError, PermissionError) as e:
             print(f"❌ Error generating report: {e}")
             return False
 
@@ -687,7 +683,7 @@ The budget distribution shows a strategic allocation of resources across differe
             self.document.save(save_path)
             print(f"💾 Document saved: {save_path}")
             return True
-        except Exception as e:
+        except (OSError, PermissionError) as e:
             print(f"❌ Error saving document: {e}")
             return False
 
@@ -769,7 +765,6 @@ Examples:
             except ImportError:
                 # If both fail, try adding current directory to path (for script execution)
                 import sys
-                from pathlib import Path
                 current_dir = Path(__file__).parent
                 sys.path.insert(0, str(current_dir))
                 try:
@@ -795,8 +790,6 @@ Examples:
                 report_file = f"reports/{args.output}"
             else:
                 # Find the most recent report
-                from pathlib import Path
-                from datetime import datetime
                 reports_dir = Path('reports')
                 if reports_dir.exists():
                     docx_files = sorted(reports_dir.glob(
@@ -814,7 +807,7 @@ Examples:
 
             success, result = convert_to_pdf(report_file)
             if success:
-                print(f"🎉 PDF conversion completed successfully!")
+                print("🎉 PDF conversion completed successfully!")
             else:
                 print(f"❌ PDF conversion failed: {result}")
 
@@ -917,7 +910,6 @@ def convert_to_pdf(word_file):
         except ImportError:
             # If both fail, try adding current directory to path (for script execution)
             import sys
-            from pathlib import Path
             current_dir = Path(__file__).parent
             sys.path.insert(0, str(current_dir))
             try:
@@ -927,7 +919,7 @@ def convert_to_pdf(word_file):
                     "❌ Error: Could not import PDF conversion module. Make sure docx2pdf is installed.")
                 return False
 
-    success, result = pdf_convert(word_file)
+    success, _ = pdf_convert(word_file)
     return success
 
 

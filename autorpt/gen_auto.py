@@ -4,7 +4,6 @@ import re
 import pandas as pd
 from pathlib import Path
 from docx import Document
-from docx.shared import Pt, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 
@@ -15,7 +14,9 @@ class AutoReportGenerator:
         """Initialize the generator with an optional Word document.
 
         Args:
-            document: Existing Word document object, or None to create new one
+              except (FileNotFoundError, PermissionError, ValueError) as e:
+            print(f"❌ Error setting up document: {e}")
+            return False   document: Existing Word document object, or None to create new one
             content_folder (str): Folder to scan for additional content files
         """
         self.document = document if document else Document()
@@ -82,7 +83,7 @@ class AutoReportGenerator:
                 print(
                     f"📂 No additional content files found in '{self.content_folder}'")
 
-        except Exception as e:
+        except (OSError, PermissionError) as e:
             print(f"❌ Error discovering content files: {e}")
 
         return discovered
@@ -105,7 +106,7 @@ class AutoReportGenerator:
         try:
             with open(markdown_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-        except Exception as e:
+        except (FileNotFoundError, PermissionError, UnicodeDecodeError) as e:
             print(f"Error reading {markdown_path}: {e}")
             return []
 
@@ -151,7 +152,7 @@ class AutoReportGenerator:
                 'rows': len(data)
             }
 
-        except Exception as e:
+        except (FileNotFoundError, PermissionError, ValueError, ImportError) as e:
             print(f"Error reading Excel file {excel_path}: {e}")
             return None
 
@@ -175,7 +176,7 @@ class AutoReportGenerator:
 
             if header_match:
                 # Save previous section if exists
-                if current_section:
+                if current_section is not None:
                     current_section['content'] = '\n'.join(
                         current_content).strip()
                     blocks.append(current_section)
@@ -363,7 +364,7 @@ class AutoReportGenerator:
                     results['files'].append(
                         {'file': str(file_path), 'status': 'failed'})
 
-            except Exception as e:
+            except (FileNotFoundError, PermissionError, ValueError) as e:
                 print(f"❌ Error processing {file_path}: {e}")
                 results['failed'] += 1
                 results['files'].append(
@@ -517,7 +518,7 @@ class AutoReportGenerator:
             print(
                 f"📊 Processed {results['success']} files successfully, {results['failed']} failed")
             return True
-        except Exception as e:
+        except (OSError, PermissionError) as e:
             print(f"❌ Error saving document: {e}")
             return False
 
@@ -591,7 +592,7 @@ def auto_generate_from_folder(content_folder="reports", output_file=None, docume
             f"📊 Processed {results['success']}/{results['discovered']} files successfully")
         if results['failed'] > 0:
             print(f"⚠️  {results['failed']} files failed to process")
-    except Exception as e:
+    except (OSError, PermissionError) as e:
         results['saved'] = False
         results['error'] = str(e)
         print(f"❌ Error saving document: {e}")
