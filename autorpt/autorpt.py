@@ -820,69 +820,69 @@ Examples:
         generator = ReportGenerator(args.input, args.output)
 
         # Generate basic report first
-    print("🚀 Starting report generation...")
-    success = generator.generate_report()
+        print("🚀 Starting report generation...")
+        success = generator.generate_report()
 
-    if not success:
-        print("❌ Failed to generate base report")
-        return 1
+        if not success:
+            print("❌ Failed to generate base report")
+            return 1
 
-    # Add additional content if specified
-    if args.markdown:
-        if os.path.exists(args.markdown):
-            print(f"📄 Adding markdown file: {args.markdown}")
-            markdown_success = generator.add_full_markdown_file(
-                args.markdown, start_header_level=1)
-            if markdown_success:
-                print("✅ Markdown content added successfully")
+        # Add additional content if specified
+        if args.markdown:
+            if os.path.exists(args.markdown):
+                print(f"📄 Adding markdown file: {args.markdown}")
+                markdown_success = generator.add_full_markdown_file(
+                    args.markdown, start_header_level=1)
+                if markdown_success:
+                    print("✅ Markdown content added successfully")
+                    generator.save_document()
+                else:
+                    print(
+                        "⚠️  Failed to add markdown content, but report generated successfully")
+            else:
+                print(f"❌ Markdown file not found: {args.markdown}")
+
+        if args.excel:
+            if os.path.exists(args.excel):
+                print(f"📊 Adding Excel table: {args.excel}")
+                excel_success = generator.add_excel_table(
+                    args.excel, args.sheet, args.table_title, start_header_level=1)
+                if excel_success:
+                    print("✅ Excel table added successfully")
+                    generator.save_document()
+                else:
+                    print("⚠️  Failed to add Excel table, but report generated successfully")
+            else:
+                print(f"❌ Excel file not found: {args.excel}")
+
+        if args.mixed:
+            print(f"📁 Adding mixed content: {', '.join(args.mixed)}")
+            existing_files = [f for f in args.mixed if os.path.exists(f)]
+            if existing_files:
+                results = generator.add_mixed_content(
+                    existing_files, start_header_level=1)
+                print(f"✅ Successfully added {results['success']} files")
+                if results['failed'] > 0:
+                    print(f"⚠️  Failed to add {results['failed']} files")
+                generator.save_document()
+            else:
+                print("❌ None of the specified mixed content files were found")
+
+        # Auto-discover and add content from folder
+        if args.auto_content:
+            print(
+                f"🔍 Auto-discovering content files in '{args.content_folder}' folder...")
+            results = generator.add_all_content_from_folder(
+                args.content_folder, start_header_level=1)
+            if results['discovered'] > 0:
+                print(
+                    f"✅ Successfully processed {results['success']}/{results['discovered']} discovered files")
+                if results['failed'] > 0:
+                    print(f"⚠️  Failed to process {results['failed']} files")
                 generator.save_document()
             else:
                 print(
-                    "⚠️  Failed to add markdown content, but report generated successfully")
-        else:
-            print(f"❌ Markdown file not found: {args.markdown}")
-
-    if args.excel:
-        if os.path.exists(args.excel):
-            print(f"📊 Adding Excel table: {args.excel}")
-            excel_success = generator.add_excel_table(
-                args.excel, args.sheet, args.table_title, start_header_level=1)
-            if excel_success:
-                print("✅ Excel table added successfully")
-                generator.save_document()
-            else:
-                print("⚠️  Failed to add Excel table, but report generated successfully")
-        else:
-            print(f"❌ Excel file not found: {args.excel}")
-
-    if args.mixed:
-        print(f"📁 Adding mixed content: {', '.join(args.mixed)}")
-        existing_files = [f for f in args.mixed if os.path.exists(f)]
-        if existing_files:
-            results = generator.add_mixed_content(
-                existing_files, start_header_level=1)
-            print(f"✅ Successfully added {results['success']} files")
-            if results['failed'] > 0:
-                print(f"⚠️  Failed to add {results['failed']} files")
-            generator.save_document()
-        else:
-            print("❌ None of the specified mixed content files were found")
-
-    # Auto-discover and add content from folder
-    if args.auto_content:
-        print(
-            f"🔍 Auto-discovering content files in '{args.content_folder}' folder...")
-        results = generator.add_all_content_from_folder(
-            args.content_folder, start_header_level=1)
-        if results['discovered'] > 0:
-            print(
-                f"✅ Successfully processed {results['success']}/{results['discovered']} discovered files")
-            if results['failed'] > 0:
-                print(f"⚠️  Failed to process {results['failed']} files")
-            generator.save_document()
-        else:
-            print(
-                f"📂 No additional content files found in '{args.content_folder}' folder")
+                    f"📂 No additional content files found in '{args.content_folder}' folder")
 
         # Convert to PDF if requested during generation
         if args.pdf and args.generate:

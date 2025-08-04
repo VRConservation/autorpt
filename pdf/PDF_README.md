@@ -1,6 +1,21 @@
 # PDF Conversion for autorpt
 
-Complete guide to PDF conversion functionality in the autorpt package.
+Complete guid### 🚀 Current Working Commands (Use These Now)
+
+For immediate use with the current version:
+
+```bash
+# Convert most recent report to PDF (most common use case)
+python -m autorpt.autorpt --pdf
+
+# Convert all Word reports to PDF
+python -m autorpt.autorpt --pdf-all
+
+# Generate new report and convert to PDF
+python -m autorpt.autorpt --generate --pdf
+```
+
+> **💡 Key Point:** These commands work from any directory right now! Use the module syntax until you install the editable version.n functionality in the autorpt package.
 
 ## Overview
 
@@ -33,12 +48,13 @@ This installs autorpt in "editable" mode, so your code changes immediately affec
 
 **For end users on other computers:**
 
-The simple commands (`autorpt --pdf`, `autorpt --pdf-all`) will be available once version 0.1.3+ is published to PyPI. Until then, use the module syntax:
+The commands work right now using module syntax:
 
 ```bash
-# Current workaround for end users (until v0.1.3+ is published)
-python -m autorpt.autorpt --pdf
-python -m autorpt.autorpt --pdf-all
+# Current commands that work everywhere (with autorpt installed)
+python -m autorpt.autorpt --pdf         # Convert latest report
+python -m autorpt.autorpt --pdf-all     # Convert all reports
+python -m autorpt.autorpt --generate --pdf  # Generate + convert
 ```
 
 ## Quick Start
@@ -62,25 +78,19 @@ autorpt --generate --pdf
 
 > **⚠️ Availability Note:** These simplified commands will be available in autorpt v0.1.3+. For current installations, use the module syntax shown in the Development section below.
 
-### 🛠️ Development: Current Working Commands
+### � Install for Simple Commands (Optional)
 
-For the current version and development work:
+To use the shorter commands (`autorpt --pdf` instead of `python -m autorpt.autorpt --pdf`):
 
 ```bash
-# Works with current PyPI version (v0.1.2) - use these now
-python -m autorpt.autorpt --pdf-only    # Convert latest report
-python -m autorpt.autorpt --pdf-all     # Convert all reports
+# From the autorpt project directory
+pip install -e .
 
-# Legacy commands (still supported in all versions)
-autorpt --pdf-only              # Same as --pdf (current version)
-autorpt --generate              # Generate new report only
-
-# From within the autorpt project directory (development)
-python autorpt/autorpt.py --pdf-only
-python autorpt/autorpt.py --pdf-all
+# Then you can use:
+autorpt --pdf              # Convert latest report
+autorpt --pdf-all          # Convert all reports
+autorpt --generate --pdf   # Generate + convert
 ```
-
-**Note:** The simple `autorpt --pdf` commands will be the recommended approach once v0.1.3+ is released.
 
 ## Detailed Usage
 

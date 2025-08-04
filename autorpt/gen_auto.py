@@ -14,9 +14,7 @@ class AutoReportGenerator:
         """Initialize the generator with an optional Word document.
 
         Args:
-              except (FileNotFoundError, PermissionError, ValueError) as e:
-            print(f"❌ Error setting up document: {e}")
-            return False   document: Existing Word document object, or None to create new one
+            document: Existing Word document object, or None to create new one
             content_folder (str): Folder to scan for additional content files
         """
         self.document = document if document else Document()
