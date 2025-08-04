@@ -698,17 +698,18 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python autorpt.py                               # Generate Word report
-  python autorpt.py --pdf                         # Generate Word + PDF
-  python autorpt.py --pdf-only                    # Convert existing reports to PDF
-  python autorpt.py --pdf-all                     # Convert all reports to PDF
-  python autorpt.py -i budget.xlsx --pdf          # Custom input with PDF
-  python autorpt.py -m report.md                  # Add markdown file with auto headers
-  python autorpt.py -m report.md --pdf            # Add markdown + generate PDF
-  python autorpt.py --excel data.xlsx             # Add Excel table
-  python autorpt.py --mixed file1.md data.xlsx    # Add multiple files
-  python autorpt.py --auto-content                # Auto-discover files in reports folder
-  python autorpt.py --auto-content --content-folder "data"  # Auto-discover in custom folder
+  autorpt                                      # Show usage help
+  autorpt --generate                           # Generate Word report
+  autorpt --pdf                                # Convert latest report to PDF
+  autorpt --pdf-all                            # Convert all reports to PDF
+  autorpt --generate --pdf                     # Generate Word + PDF
+  autorpt --generate -i budget.xlsx --pdf     # Custom input with PDF
+  autorpt --generate -m report.md              # Add markdown file with auto headers
+  autorpt --generate -m report.md --pdf       # Add markdown + generate PDF
+  autorpt --generate --excel data.xlsx        # Add Excel table
+  autorpt --generate --mixed file1.md data.xlsx    # Add multiple files
+  autorpt --generate --auto-content           # Auto-discover files in reports folder
+  autorpt --generate --auto-content --content-folder "data"  # Auto-discover in custom folder
         """)
 
     parser.add_argument('--input', '-i', default='budget.xlsx',
@@ -730,11 +731,13 @@ Examples:
     parser.add_argument('--content-folder', default='reports',
                         help='Folder to scan for auto-content files (default: reports)')
     parser.add_argument('--pdf', '-p', action='store_true',
-                        help='Also convert the report to PDF')
+                        help='Convert most recent report to PDF (primary use case)')
     parser.add_argument('--pdf-only', action='store_true',
-                        help='Only convert existing Word reports to PDF (no new report generation)')
+                        help='(Legacy) Same as --pdf - convert existing reports to PDF')
     parser.add_argument('--pdf-all', action='store_true',
                         help='Convert all Word reports in reports/ folder to PDF')
+    parser.add_argument('--generate', action='store_true',
+                        help='Generate new report (combine with --pdf for generate+convert)')
     parser.add_argument('--verbose', '-v', action='store_true',
                         help='Enable verbose output')
 
@@ -751,8 +754,8 @@ Examples:
         if args.pdf_all:
             print("📄 Converting all reports to PDF")
 
-    # Handle PDF-only operations
-    if args.pdf_only or args.pdf_all:
+    # Handle PDF-only operations (including the new simple --pdf behavior)
+    if args.pdf_only or args.pdf_all or (args.pdf and not args.generate):
         # Import pdf module - handle both package and script execution contexts
         try:
             # Try relative import first (for package installation)
@@ -783,7 +786,7 @@ Examples:
             else:
                 print(
                     f"⚠️  Converted {results['success']} report(s), but {results['failed']} failed")
-        elif args.pdf_only:
+        elif args.pdf_only or (args.pdf and not args.generate):
             # Convert the most recent report or specified output file
             if args.output:
                 report_file = f"reports/{args.output}"
@@ -812,10 +815,11 @@ Examples:
 
         return 0 if success else 1
 
-    # Normal report generation flow
-    generator = ReportGenerator(args.input, args.output)
+    # Normal report generation flow (only when --generate is specified or no PDF-only flags)
+    if args.generate or not (args.pdf or args.pdf_only or args.pdf_all):
+        generator = ReportGenerator(args.input, args.output)
 
-    # Generate basic report first
+        # Generate basic report first
     print("🚀 Starting report generation...")
     success = generator.generate_report()
 
@@ -880,13 +884,19 @@ Examples:
             print(
                 f"📂 No additional content files found in '{args.content_folder}' folder")
 
-    # Convert to PDF if requested and report generation was successful
-    if args.pdf:
-        pdf_success = generator.rpt_pdf()
-        if not pdf_success:
-            print("⚠️  Report generated successfully but PDF conversion failed")
+        # Convert to PDF if requested during generation
+        if args.pdf and args.generate:
+            pdf_success = generator.rpt_pdf()
+            if not pdf_success:
+                print("⚠️  Report generated successfully but PDF conversion failed")
 
-    return 0 if success else 1
+        return 0 if success else 1
+
+    # If we get here, it means no generation was requested but no PDF-only operation either
+    # This handles the case where someone runs 'autorpt' with no arguments
+    else:
+        print("ℹ️  No operation specified. Use --generate to create a new report, --pdf to convert latest report, or --pdf-all to convert all reports.")
+        return 0
 
 
 def convert_docx_to_pdf(word_file):

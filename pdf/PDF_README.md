@@ -20,67 +20,81 @@ Or install from requirements:
 pip install -r requirements.txt
 ```
 
-## Quick Start
+### Installing the Latest Development Version
 
-### 🚀 Recommended: Built-in Commands
-
-The simplest way to work with PDFs using enhanced autorpt commands:
+**For developers working with source code:**
 
 ```bash
-# Generate new report and convert to PDF
-python autorpt/autorpt.py --pdf
+# From the autorpt project directory
+pip install -e .
+```
 
-# Convert most recent report to PDF (no new generation)
-python autorpt/autorpt.py --pdf-only
+This installs autorpt in "editable" mode, so your code changes immediately affect the `autorpt` command.
+
+**For end users on other computers:**
+
+The simple commands (`autorpt --pdf`, `autorpt --pdf-all`) will be available once version 0.1.3+ is published to PyPI. Until then, use the module syntax:
+
+```bash
+# Current workaround for end users (until v0.1.3+ is published)
+python -m autorpt.autorpt --pdf
+python -m autorpt.autorpt --pdf-all
+```
+
+## Quick Start
+
+### 🚀 Recommended: Simple Console Commands (Works Anywhere)\*
+
+The simplest way to work with PDFs using clean, intuitive commands:
+
+```bash
+# Convert most recent report to PDF (most common use case)
+autorpt --pdf
 
 # Convert all Word reports to PDF
+autorpt --pdf-all
+
+# Generate new report and convert to PDF (if needed)
+autorpt --generate --pdf
+```
+
+> **💡 Key Point:** These commands work from any directory once autorpt is installed. No aliases or complex paths needed!
+
+> **⚠️ Availability Note:** These simplified commands will be available in autorpt v0.1.3+. For current installations, use the module syntax shown in the Development section below.
+
+### 🛠️ Development: Current Working Commands
+
+For the current version and development work:
+
+```bash
+# Works with current PyPI version (v0.1.2) - use these now
+python -m autorpt.autorpt --pdf-only    # Convert latest report
+python -m autorpt.autorpt --pdf-all     # Convert all reports
+
+# Legacy commands (still supported in all versions)
+autorpt --pdf-only              # Same as --pdf (current version)
+autorpt --generate              # Generate new report only
+
+# From within the autorpt project directory (development)
+python autorpt/autorpt.py --pdf-only
 python autorpt/autorpt.py --pdf-all
 ```
 
-### 🛠️ Convenience Scripts
-
-Use the provided scripts for even easier access from the main autorpt directory:
-
-#### PowerShell Script
-
-```powershell
-.\pdf\autorpt-pdf.ps1           # Convert latest report
-.\pdf\autorpt-pdf.ps1 all       # Convert all reports
-.\pdf\autorpt-pdf.ps1 new       # Generate new + PDF
-```
-
-#### Windows Batch Script
-
-```batch
-.\pdf\autorpt-pdf.bat           # Convert latest report
-.\pdf\autorpt-pdf.bat all       # Convert all reports
-.\pdf\autorpt-pdf.bat new       # Generate new + PDF
-```
-
-#### Simple Aliases (PowerShell)
-
-```powershell
-# Set up aliases once
-.\pdf\setup-aliases.ps1
-
-# Then use simple commands
-pdf-latest                      # Convert latest report
-pdf-all                         # Convert all reports
-pdf-new                         # Generate new report + PDF
-```
+**Note:** The simple `autorpt --pdf` commands will be the recommended approach once v0.1.3+ is released.
 
 ## Detailed Usage
 
 ### Command Line Options
 
-#### autorpt.py integration options:
+#### autorpt integration options:
 
--   `--pdf`: Generate report and convert to PDF
--   `--pdf-only`: Convert most recent report to PDF (no generation)
+-   `--pdf`: Convert most recent report to PDF (primary use case)
 -   `--pdf-all`: Convert all Word reports in reports/ folder to PDF
+-   `--generate --pdf`: Generate new report and convert to PDF
+-   `--pdf-only`: (Legacy) Same as `--pdf`
 -   `-v, --verbose`: Enable verbose output
 
-#### Standalone pdf.py script options:
+#### Standalone pdf.py script options (for development):
 
 -   `-f, --file FILE`: Convert a specific Word document
 -   `-a, --all`: Convert all Word documents in directory
@@ -93,34 +107,38 @@ pdf-new                         # Generate new report + PDF
 #### Single File Conversion
 
 ```bash
-# Convert specific file
-python autorpt/pdf.py -f reports/project_report_2025-08-04.docx
+# Convert specific file (development/debugging)
+python -m autorpt.pdf -f reports/project_report_2025-08-04.docx
 
 # Convert with custom output directory
-python autorpt/pdf.py -f report.docx -o pdfs/
+python -m autorpt.pdf -f report.docx -o pdfs/
 ```
 
 #### Batch Conversion
 
 ```bash
-# Convert all reports with verbose output
-python autorpt/pdf.py -a -v
+# Convert all reports with verbose output (development)
+python -m autorpt.pdf -a -v
 
 # Convert from custom directory to specific output
-python autorpt/pdf.py -a -d reports -o pdfs
+python -m autorpt.pdf -a -d reports -o pdfs
 ```
 
 #### Integration Workflows
 
 ```bash
 # Generate custom report with PDF
-python autorpt/autorpt.py -i budget.xlsx -o monthly_report.docx --pdf
+autorpt --generate -i budget.xlsx -o monthly_report.docx --pdf
 
 # Add content and convert
-python autorpt/autorpt.py --auto-content --pdf
+autorpt --generate --auto-content --pdf
 
 # Generate from mixed content with PDF
-python autorpt/autorpt.py --mixed file1.md data.xlsx --pdf
+autorpt --generate --mixed file1.md data.xlsx --pdf
+
+# Convert existing reports (most common)
+autorpt --pdf              # Latest report
+autorpt --pdf-all          # All reports
 ```
 
 ### Programmatic Usage
@@ -187,6 +205,27 @@ The PDF conversion includes:
 
 ### Common Issues & Solutions
 
+#### "No such file or directory" when running autorpt commands
+
+This usually means you're trying to use project-relative paths outside the project directory.
+
+**Solutions:**
+
+```bash
+# ✅ Use the simple console commands (works anywhere)
+autorpt --pdf              # Convert latest report
+autorpt --pdf-all          # Convert all reports
+
+# ✅ For generating new reports with PDF
+autorpt --generate --pdf
+
+# ❌ Don't use relative paths outside project directory
+python autorpt/autorpt.py --pdf  # Only works from project root
+
+# ❌ Don't use complex module syntax unless debugging
+python -m autorpt.autorpt --pdf-only
+```
+
 #### "PDF conversion not available"
 
 ```bash
@@ -219,29 +258,29 @@ pip install docx2pdf
 ### Example 1: Daily Report Workflow
 
 ```bash
-# Generate today's report and convert to PDF
-python autorpt/autorpt.py --pdf
+# Convert today's most recent report to PDF
+autorpt --pdf
 ```
 
 ### Example 2: Archive All Reports
 
 ```bash
-# Convert all existing reports to PDFs with verbose output
-python autorpt/pdf.py -a -v
+# Convert all existing reports to PDFs
+autorpt --pdf-all
 ```
 
 ### Example 3: Custom Monthly Report
 
 ```bash
-# Generate custom report with markdown content
-python autorpt/autorpt.py --auto-content --content-folder monthly_data --pdf
+# Generate custom report with markdown content and convert to PDF
+autorpt --generate --auto-content --content-folder monthly_data --pdf
 ```
 
 ### Example 4: Organized Output
 
 ```bash
-# Convert all reports to organized PDF directory
-python autorpt/pdf.py -a -d reports -o pdfs/$(date +%Y-%m)
+# Convert all reports to organized PDF directory (development)
+python -m autorpt.pdf -a -d reports -o pdfs/$(date +%Y-%m)
 ```
 
 ## Integration Notes
