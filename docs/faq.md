@@ -17,7 +17,7 @@ Russell, V. 2025. autorpt: A Python package for automating report writing. https
 
 Bibtex:
 @misc{vrussell
-    title   = {autorpt: A Python package for automating report writin},
+    title   = {autorpt: A Python package for automating report writing},
     author  = {Russell, Vance},
     year    = {2025},
     url     = {https://3point.xyz/autorpt},
