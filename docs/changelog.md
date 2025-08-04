@@ -1,6 +1,8 @@
 # Changelog
 Full [changelog](https://github.com/VRConservation/autorpt/releases)
 
+## [Unreleased]
+
 ## v0.1.2 - 4 Aug, 2025
 
 **Changed**:
