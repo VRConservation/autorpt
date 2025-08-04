@@ -851,7 +851,8 @@ Examples:
                     print("✅ Excel table added successfully")
                     generator.save_document()
                 else:
-                    print("⚠️  Failed to add Excel table, but report generated successfully")
+                    print(
+                        "⚠️  Failed to add Excel table, but report generated successfully")
             else:
                 print(f"❌ Excel file not found: {args.excel}")
 
