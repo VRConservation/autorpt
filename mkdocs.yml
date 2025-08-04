@@ -9,8 +9,8 @@ copyright: "Copyright &copy; 2025 - 2025 Vance Russell"
 theme:
     palette:
         - scheme: default
-          #   primary: blue
-          #   accent: indigo
+        #   primary: blue
+        #   accent: indigo
           toggle:
               icon: material/toggle-switch-off-outline
               name: Switch to dark mode
@@ -41,17 +41,17 @@ plugins:
     - mkdocstrings
     - git-revision-date
     - git-revision-date-localized:
-          enable_creation_date: true
-          type: timeago
+        enable_creation_date: true
+        type: timeago
     # - pdf-export
     - mkdocs-jupyter:
-          include_source: True
-          ignore_h1_titles: True
-          execute: True
-          allow_errors: false
-          ignore: ["conf.py"]
-          execute_ignore: ["*ignore.ipynb"]
-          
+        include_source: True
+        ignore_h1_titles: True
+        execute: True
+        allow_errors: false
+        ignore: ["conf.py"]
+        execute_ignore: ["*ignore.ipynb"]
+
 markdown_extensions:
     - admonition
     - abbr
@@ -62,9 +62,9 @@ markdown_extensions:
     - md_in_html
     - pymdownx.superfences
     - pymdownx.highlight:
-          linenums: true
+        linenums: true
     - toc:
-          permalink: true
+        permalink: true
 
 # extra:
 #     analytics:
