@@ -83,7 +83,8 @@ nav:
         - examples/intro.ipynb
         - examples/pdf.ipynb
     - API Reference:
-          - autorpt module: autorpt.md
-          - common module: common.md
-          - pdf module: pdf.md
+        - autorpt module: autorpt.md
+        - common module: common.md
+        - pdf module: pdf.md
+        - gen_auto module: gen_auto.md
 
