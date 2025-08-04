@@ -274,8 +274,7 @@ class ReportGenerator:
 
         borders_element = parse_xml(no_border_xml)
         # Access protected member for low-level XML manipulation (required for border removal)
-        table._tbl.tblPr.append(
-            borders_element)  # pylint: disable=protected-access
+        table._tbl.tblPr.append(borders_element)  # type: ignore[attr-defined]
 
     def _format_cell_alignment(self, cell, column_index, is_header=False, is_total_row=False):
         """Format cell alignment based on content type"""
@@ -598,18 +597,18 @@ The budget distribution shows a strategic allocation of resources across differe
         # Import pdf module - handle both package and script execution contexts
         try:
             # Try relative import first (for package installation)
-            from .pdf import convert_to_pdf
+            from .pdf import convert_to_pdf as pdf_convert_func
         except ImportError:
             try:
                 # Try absolute import (for installed package)
-                from autorpt.pdf import convert_to_pdf
+                from autorpt.pdf import convert_to_pdf as pdf_convert_func
             except ImportError:
                 # If both fail, try adding current directory to path (for script execution)
                 import sys
                 current_dir = Path(__file__).parent
                 sys.path.insert(0, str(current_dir))
                 try:
-                    from pdf import convert_to_pdf
+                    from pdf import convert_to_pdf as pdf_convert_func
                 except ImportError:
                     print(
                         "❌ Error: Could not import PDF conversion module. Make sure docx2pdf is installed.")
@@ -622,7 +621,7 @@ The budget distribution shows a strategic allocation of resources across differe
             print(f"❌ Word document not found: {source_file}")
             return None
 
-        success, result = convert_to_pdf(source_file)
+        success, result = pdf_convert_func(source_file)
 
         if success:
             print(f"🎉 PDF conversion completed: {result}")
@@ -757,18 +756,18 @@ Examples:
         # Import pdf module - handle both package and script execution contexts
         try:
             # Try relative import first (for package installation)
-            from .pdf import convert_to_pdf, convert_all_reports
+            from .pdf import convert_to_pdf as pdf_convert_func, convert_all_reports
         except ImportError:
             try:
                 # Try absolute import (for installed package)
-                from autorpt.pdf import convert_to_pdf, convert_all_reports
+                from autorpt.pdf import convert_to_pdf as pdf_convert_func, convert_all_reports
             except ImportError:
                 # If both fail, try adding current directory to path (for script execution)
                 import sys
                 current_dir = Path(__file__).parent
                 sys.path.insert(0, str(current_dir))
                 try:
-                    from pdf import convert_to_pdf, convert_all_reports
+                    from pdf import convert_to_pdf as pdf_convert_func, convert_all_reports
                 except ImportError:
                     print(
                         "❌ Error: Could not import PDF conversion module. Make sure docx2pdf is installed.")
@@ -805,7 +804,7 @@ Examples:
                     print("❌ Reports directory not found")
                     return 1
 
-            success, result = convert_to_pdf(report_file)
+            success, result = pdf_convert_func(report_file)
             if success:
                 print("🎉 PDF conversion completed successfully!")
             else:
@@ -890,7 +889,7 @@ Examples:
     return 0 if success else 1
 
 
-def convert_to_pdf(word_file):
+def convert_docx_to_pdf(word_file):
     """Standalone function to convert a Word document to PDF
 
     Args:
