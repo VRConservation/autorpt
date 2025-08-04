@@ -57,435 +57,613 @@ class ReportGenerator:
                 return parent_dir / f"{name_stem}_{timestamp}{extension}"
 
     def _load_content_sections(self):
-        """Load and cache all sections from content.md file once"""
+        """Load and parse content.md file into sections"""
         if self._content_sections is not None:
             return self._content_sections
 
-        try:
-            content_file = Path('content.md')
-            if not content_file.exists():
-                print(f"Info: content.md not found, using default content")
-                self._content_sections = {}
-                return self._content_sections
+        content_file = 'content.md'
+        self._content_sections = {}
 
+        if not os.path.exists(content_file):
+            print(f"⚠️  Content file '{content_file}' not found")
+            return self._content_sections
+
+        try:
             with open(content_file, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-            # Split content by headers (# Section Name)
-            sections = {}
-            current_section = None
-            current_content = []
+            # Split content by headers (## Header Name)
+            import re
+            sections = re.split(r'^## (.+)$', content, flags=re.MULTILINE)
 
-            for line in content.split('\n'):
-                if line.startswith('# '):
-                    # Save previous section if exists
-                    if current_section:
-                        sections[current_section] = '\n'.join(
-                            current_content).strip()
-                    # Start new section
-                    current_section = line[2:].strip()  # Remove '# '
-                    current_content = []
-                else:
-                    current_content.append(line)
+            # First section before any header is ignored
+            for i in range(1, len(sections), 2):
+                if i + 1 < len(sections):
+                    header_name = sections[i].strip()
+                    section_content = sections[i + 1].strip()
 
-            # Save last section
-            if current_section:
-                sections[current_section] = '\n'.join(current_content).strip()
+                    # Normalize header names (remove spaces, make lowercase)
+                    normalized_name = header_name.lower().replace(' ', '_').replace('-', '_')
+                    self._content_sections[normalized_name] = {
+                        'original_name': header_name,
+                        'content': section_content
+                    }
 
-            self._content_sections = sections
+            print(
+                f"📄 Loaded {len(self._content_sections)} sections from content.md")
             return self._content_sections
 
         except Exception as e:
-            print(f"Error reading content.md: {e}")
-            self._content_sections = {}
-            return self._content_sections
+            print(f"❌ Error loading content.md: {e}")
+            return {}
 
     def read_section_from_content(self, section_name):
-        """Read a specific section from cached content.md sections"""
+        """Read a specific section from content.md"""
         sections = self._load_content_sections()
-        return sections.get(section_name, None)
+        normalized_name = section_name.lower().replace(' ', '_').replace('-', '_')
+
+        if normalized_name in sections:
+            return sections[normalized_name]['content']
+        else:
+            available_sections = list(sections.keys())
+            print(f"⚠️  Section '{section_name}' not found in content.md")
+            if available_sections:
+                print(
+                    f"   Available sections: {', '.join(available_sections)}")
+            return None
 
     def add_markdown_content(self, section_name, default_content=None):
-        """Add content from content.md section to document with basic formatting"""
+        """Add markdown content from content.md to the document"""
         content = self.read_section_from_content(section_name)
 
         if not content and default_content:
             content = default_content
-        elif not content:
-            return
+            print(f"⚠️  Using default content for section '{section_name}'")
 
-        # Split content into paragraphs
-        paragraphs = content.split('\n\n')
+        if content:
+            # Split content into lines for processing
+            lines = content.split('\n')
 
-        for para in paragraphs:
-            para = para.strip()
-            if not para:
-                continue
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
 
-            # Handle bullet points (markdown style) - removed bold formatting
-            if para.startswith('- ') or para.startswith('* '):
-                # Split multiple bullet points
-                bullets = [line.strip()[2:] for line in para.split(
-                    '\n') if line.strip().startswith(('- ', '* '))]
-                for bullet in bullets:
-                    self.document.add_paragraph(bullet, style='List Bullet')
-            else:
-                # Regular paragraph
-                self.document.add_paragraph(para)
+                # Handle bullet points (markdown style) - removed bold formatting
+                if line.startswith('- '):
+                    bullet_text = line[2:].strip()
+                    p = self.document.add_paragraph(
+                        bullet_text, style='List Bullet')
+                else:
+                    # Regular paragraph
+                    self.document.add_paragraph(line)
+        else:
+            # Add placeholder if no content found
+            self.document.add_paragraph(
+                f"[Content for {section_name} section]")
+
+    def add_full_markdown_file(self, markdown_file_path, start_header_level=1):
+        """Add complete markdown file to document with automatic header detection.
+
+        Args:
+            markdown_file_path (str): Path to the markdown file
+            start_header_level (int): Starting header level for Word document (1-9)
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            from .gen_auto import add_markdown_to_existing_document
+        except ImportError:
+            try:
+                from autorpt.gen_auto import add_markdown_to_existing_document
+            except ImportError:
+                import sys
+                from pathlib import Path
+                current_dir = Path(__file__).parent
+                sys.path.insert(0, str(current_dir))
+                try:
+                    from gen_auto import add_markdown_to_existing_document
+                except ImportError:
+                    print("❌ Error: Could not import auto-generation module.")
+                    return False
+
+        return add_markdown_to_existing_document(self.document, markdown_file_path, start_header_level)
+
+    def add_excel_table(self, excel_file_path, sheet_name=None, table_title=None, start_header_level=1):
+        """Add Excel table to document with automatic formatting.
+
+        Args:
+            excel_file_path (str): Path to the Excel file
+            sheet_name (str): Optional sheet name to read
+            table_title (str): Optional title for the table
+            start_header_level (int): Starting header level for Word document (1-9)
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            from .gen_auto import add_excel_table_to_existing_document
+        except ImportError:
+            try:
+                from autorpt.gen_auto import add_excel_table_to_existing_document
+            except ImportError:
+                import sys
+                from pathlib import Path
+                current_dir = Path(__file__).parent
+                sys.path.insert(0, str(current_dir))
+                try:
+                    from gen_auto import add_excel_table_to_existing_document
+                except ImportError:
+                    print("❌ Error: Could not import auto-generation module.")
+                    return False
+
+        return add_excel_table_to_existing_document(
+            self.document, excel_file_path, sheet_name, table_title, start_header_level
+        )
+
+    def add_mixed_content(self, content_files, start_header_level=1):
+        """Add multiple markdown and Excel files to the document.
+
+        Args:
+            content_files (list): List of file paths or file dictionaries
+            start_header_level (int): Starting header level for Word document (1-9)
+
+        Returns:
+            dict: Results summary with success/failure counts
+        """
+        try:
+            from .gen_auto import add_mixed_content_to_existing_document
+        except ImportError:
+            try:
+                from autorpt.gen_auto import add_mixed_content_to_existing_document
+            except ImportError:
+                import sys
+                from pathlib import Path
+                current_dir = Path(__file__).parent
+                sys.path.insert(0, str(current_dir))
+                try:
+                    from gen_auto import add_mixed_content_to_existing_document
+                except ImportError:
+                    print("❌ Error: Could not import auto-generation module.")
+                    return {'success': 0, 'failed': 1, 'files': []}
+
+        return add_mixed_content_to_existing_document(self.document, content_files, start_header_level)
 
     def _remove_table_borders(self, table):
-        """Efficiently remove borders from table"""
-        # Set table style to None to remove default borders
-        table.style = None
+        """Remove all borders from table for cleaner look"""
+        from docx.oxml.shared import qn
+        from docx.oxml import parse_xml
 
-        # Remove borders at XML level for all existing and new cells
-        for row in table.rows:
-            for cell in row.cells:
-                tc = cell._tc
-                tcPr = tc.get_or_add_tcPr()
-                # Remove borders if they exist
-                tcBorders = tcPr.find(
-                    './/{http://schemas.openxmlformats.org/wordprocessingml/2006/main}tcBorders')
-                if tcBorders is not None:
-                    tcPr.remove(tcBorders)
+        # Create XML for no borders
+        no_border_xml = """
+        <w:tblBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+            <w:top w:val="none"/>
+            <w:left w:val="none"/>
+            <w:bottom w:val="none"/>
+            <w:right w:val="none"/>
+            <w:insideH w:val="none"/>
+            <w:insideV w:val="none"/>
+        </w:tblBorders>
+        """
+
+        borders_element = parse_xml(no_border_xml)
+        table._tbl.tblPr.append(borders_element)
 
     def _format_cell_alignment(self, cell, column_index, is_header=False, is_total_row=False):
-        """Efficiently format cell alignment and styling"""
-        for paragraph in cell.paragraphs:
-            # Set font size
-            if paragraph.runs:
-                paragraph.runs[0].font.size = Pt(11)
+        """Format cell alignment based on content type"""
 
-            # Right-align numeric columns (1, 2, 3)
-            if column_index in [1, 2, 3]:
-                paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        # Set alignment based on column content
+        if column_index == 0:  # First column (category names)
+            cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT
+        else:  # Numeric columns
+            cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
-            # Bold formatting for headers and totals
-            if is_header or is_total_row:
+        # Make header row bold
+        if is_header or is_total_row:
+            for paragraph in cell.paragraphs:
                 for run in paragraph.runs:
-                    run.bold = True
+                    run.font.bold = True
+                    if is_total_row:
+                        run.font.size = Pt(11)
 
     def load_data(self):
-        """Load budget data from Excel file"""
+        """Load Excel data"""
         try:
-            self.data = pd.read_excel(self.excel_file)
-            print(f"✅ Successfully loaded data from {self.excel_file}")
-            print(f"   Columns: {list(self.data.columns)}")
-            print(f"   Rows: {len(self.data)}")
+            # Read Excel file - handle multiple sheets if needed
+            excel_file = pd.ExcelFile(self.excel_file)
+
+            # Use first sheet by default or specific sheet if provided
+            sheet_names = excel_file.sheet_names
+            print(
+                f"📊 Found {len(sheet_names)} sheet(s): {', '.join(sheet_names)}")
+
+            # Load the first sheet (or could be made configurable)
+            self.data = pd.read_excel(
+                self.excel_file, sheet_name=sheet_names[0])
+            print(
+                f"✅ Successfully loaded {len(self.data)} rows from {sheet_names[0]}")
+
             return True
-        except FileNotFoundError:
-            print(f"❌ Error: Could not find {self.excel_file}")
-            return False
+
         except Exception as e:
-            print(f"❌ Error loading data: {e}")
+            print(f"❌ Error loading Excel file: {e}")
             return False
 
-    def create_document(self):
-        """Initialize the Word document"""
-        self.document = Document()
-        # Add title with current date
-        title = f'Budget Report - {datetime.now().strftime("%B %d, %Y")}'
-        self.document.add_heading(title, 0)
-        print("✅ Document initialized")
-
-    def add_introduction(self):
-        """Add introduction section"""
-        self.document.add_heading('Summary', level=1)
-
-        default_intro = f"""This report provides a comprehensive overview of budget allocation and expenditure status as of {datetime.now().strftime("%B %d, %Y")}.
-
-Key metrics include budget utilization rates, remaining fund allocation, and project-specific financial performance indicators."""
-
-        self.add_markdown_content('Summary', default_intro)
-        print("✅ Summary section added")
-
-    def add_deliverables_progress(self):
-        """Add deliverables progress section"""
-        self.document.add_heading('Deliverables Progress', level=1)
-
-        default_deliverables = """Progress on key project deliverables remains on track with established timelines.
-
-- Major milestones achieved during this reporting period
-- Current status of ongoing deliverables
-- Any adjustments to delivery schedules"""
-
-        self.add_markdown_content(
-            'Deliverables Progress', default_deliverables)
-        print("✅ Deliverables Progress section added")
-
-    def add_budget_table(self):
-        """Add budget data table"""
+    def create_budget_table(self):
+        """Create formatted budget table"""
         if self.data is None:
-            print("❌ No data available for table")
-            return False
+            return
 
-        self.document.add_heading('Budget', level=1)
+        # Add Budget Table Header
+        header = self.document.add_heading('Budget Overview', level=2)
+        header.alignment = WD_ALIGN_PARAGRAPH.LEFT
 
-        # Add summary paragraph
-        total_budgeted = self.data['Budgeted'].sum(
-        ) if 'Budgeted' in self.data.columns else 0
-        total_remaining = self.data['Remaining'].sum(
-        ) if 'Remaining' in self.data.columns else 0
-        utilization_rate = ((total_budgeted - total_remaining) /
-                            total_budgeted * 100) if total_budgeted > 0 else 0
+        # Create table with data
+        table = self.document.add_table(
+            rows=len(self.data) + 1, cols=len(self.data.columns))
 
-        summary_text = f"Total Budget: ${total_budgeted:,.0f} | Utilization Rate: {utilization_rate:.1f}% | Remaining: ${total_remaining:,.0f}"
-        self.document.add_paragraph(summary_text)
-
-        # Create table
-        table = self.document.add_table(rows=1, cols=len(self.data.columns))
-
-        # Remove all borders efficiently
+        # Remove borders for cleaner look
         self._remove_table_borders(table)
 
-        # Add header row with formatting
-        hdr_cells = table.rows[0].cells
-        for i, column_name in enumerate(self.data.columns):
-            hdr_cells[i].text = str(column_name)
-            self._format_cell_alignment(hdr_cells[i], i, is_header=True)
+        # Add header row
+        header_cells = table.rows[0].cells
+        for i, column in enumerate(self.data.columns):
+            header_cells[i].text = str(column)
+            self._format_cell_alignment(header_cells[i], i, is_header=True)
 
-        # Add data rows efficiently
-        for i, row_data in self.data.iterrows():
-            row_cells = table.add_row().cells
-
-            # Remove borders from new row
-            for cell in row_cells:
-                tc = cell._tc
-                tcPr = tc.get_or_add_tcPr()
-                tcBorders = tcPr.find(
-                    './/{http://schemas.openxmlformats.org/wordprocessingml/2006/main}tcBorders')
-                if tcBorders is not None:
-                    tcPr.remove(tcBorders)
-
-            is_total_row = 'TOTAL' in str(row_data.iloc[0]).upper()
-
-            for j, cell_value in enumerate(row_data):
-                # Format numbers with commas if numeric
-                if pd.api.types.is_numeric_dtype(type(cell_value)) and pd.notna(cell_value):
-                    row_cells[j].text = f"{cell_value:,.0f}" if cell_value == int(
-                        cell_value) else f"{cell_value:,.2f}"
+        # Add data rows
+        for i, (_, row) in enumerate(self.data.iterrows(), start=1):
+            data_cells = table.rows[i].cells
+            for j, value in enumerate(row):
+                # Format numbers as currency if they appear to be monetary
+                if isinstance(value, (int, float)) and j > 0:
+                    data_cells[j].text = f"${value:,.2f}"
                 else:
-                    row_cells[j].text = str(cell_value)
+                    data_cells[j].text = str(value)
 
-                # Apply formatting
+                # Check if this is a total row (last row or contains "Total" in first column)
+                is_total_row = (i == len(self.data)) or (
+                    "total" in str(row.iloc[0]).lower())
                 self._format_cell_alignment(
-                    row_cells[j], j, is_total_row=is_total_row)
+                    data_cells[j], j, is_total_row=is_total_row)
 
-        print("✅ Budget table added")
-        return True
+    def add_chart_section(self):
+        """Add budget chart section"""
+        # Add Chart section header
+        chart_header = self.document.add_heading(
+            'Budget Visualization', level=2)
+        chart_header.alignment = WD_ALIGN_PARAGRAPH.LEFT
 
-    def add_key_points(self):
-        """Add key points section"""
-        # Add space and intro sentence
-        self.document.add_paragraph("")  # Empty paragraph for spacing
-        self.document.add_paragraph("Summary of budget status:")
+        # Create and save chart
+        self.create_budget_chart()
 
-        # Generate dynamic key points based on data
-        key_points = []
+        # Check if chart was created successfully
+        chart_path = 'budget_chart.png'
+        if os.path.exists(chart_path):
+            # Add chart to document
+            chart_paragraph = self.document.add_paragraph()
+            chart_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-        if self.data is not None and all(col in self.data.columns for col in ['Budgeted', 'Remaining']):
-            # Calculate insights efficiently
-            total_budgeted = self.data['Budgeted'].sum()
-            total_remaining = self.data['Remaining'].sum()
-            utilization_rate = ((total_budgeted - total_remaining) /
-                                total_budgeted * 100) if total_budgeted > 0 else 0
+            run = chart_paragraph.runs[0] if chart_paragraph.runs else chart_paragraph.add_run(
+            )
+            run.add_picture(chart_path, width=Inches(6))
 
-            # Find highest and lowest utilization tasks efficiently
-            self.data['Utilization%'] = (
-                (self.data['Budgeted'] - self.data['Remaining']) / self.data['Budgeted'] * 100).round(1)
+            print(f"✅ Chart added to document: {chart_path}")
+        else:
+            print("❌ Chart file not found, skipping chart section")
 
-            if len(self.data) > 1:
-                # Filter out totals row efficiently
-                non_total_data = self.data[~self.data['Task'].str.contains(
-                    'TOTAL', case=False, na=False)] if 'Task' in self.data.columns else self.data
-
-                if len(non_total_data) > 0:
-                    highest_util_idx = non_total_data['Utilization%'].idxmax()
-                    lowest_util_idx = non_total_data['Utilization%'].idxmin()
-
-                    highest_util = non_total_data.loc[highest_util_idx]
-                    lowest_util = non_total_data.loc[lowest_util_idx]
-
-                    key_points = [
-                        f"Overall budget utilization stands at {utilization_rate:.1f}%",
-                        f"Highest utilization: {highest_util['Task']} at {highest_util['Utilization%']:.1f}%",
-                        f"Lowest utilization: {lowest_util['Task']} at {lowest_util['Utilization%']:.1f}%",
-                        f"Total remaining funds: ${total_remaining:,.0f}"
-                    ]
-
-        # Use default if no dynamic points generated
-        if not key_points:
-            key_points = [
-                "Budget tracking is current and accurate",
-                "All expenditures are within approved parameters",
-                "Financial controls are operating effectively",
-                "Regular monitoring continues as scheduled"
-            ]
-
-        default_key_points = "\n".join([f"- {point}" for point in key_points])
-        self.add_markdown_content('key_points', default_key_points)
-
-        print("✅ Key points section added")
-
-    def add_budget_chart(self):
-        """Add budget visualization chart"""
+    def create_budget_chart(self):
+        """Create budget visualization chart"""
         if self.data is None:
-            print("❌ No data available for chart")
-            return False
-
-        # Add chart description
-        chart_desc = "Figure 1 provides a visual comparison of budgeted amounts versus remaining funds for each project component."
-        self.add_markdown_content('chart_description', chart_desc)
+            return
 
         try:
-            # Set matplotlib to non-interactive backend to prevent chart from showing
-            plt.ioff()
+            # Prepare data for chart - assume first column is categories, others are values
+            categories = self.data.iloc[:, 0].tolist()
 
-            # Filter out TOTALS row for better visualization
-            chart_data = self.data[~self.data['Task'].str.contains(
-                'TOTAL', case=False, na=False)] if 'Task' in self.data.columns else self.data
+            # If there are multiple value columns, use the last one or sum them
+            if len(self.data.columns) > 2:
+                # Sum numeric columns for total budget
+                numeric_cols = self.data.select_dtypes(
+                    include=['number']).columns
+                values = self.data[numeric_cols].sum(axis=1).tolist()
+            else:
+                # Use second column as values
+                values = self.data.iloc[:, 1].tolist()
 
-            if len(chart_data) == 0:
-                chart_data = self.data
+            # Create chart
+            plt.figure(figsize=(10, 6))
+            bars = plt.bar(categories, values)
 
-            # Create chart more efficiently
-            fig, ax = plt.subplots(figsize=(12, 8))
+            # Customize chart
+            plt.title('Budget Overview', fontsize=16,
+                      fontweight='bold', pad=20)
+            plt.xlabel('Categories', fontsize=12)
+            plt.ylabel('Amount ($)', fontsize=12)
 
-            # Plot data
-            x_pos = range(len(chart_data))
-            ax.bar([x - 0.2 for x in x_pos], chart_data['Budgeted'],
-                   0.4, label='Budgeted', color='#2E8B57')
-            ax.bar([x + 0.2 for x in x_pos], chart_data['Remaining'],
-                   0.4, label='Remaining', color='#4169E1')
+            # Format y-axis as currency
+            plt.gca().yaxis.set_major_formatter(
+                plt.FuncFormatter(lambda x, p: f'${x:,.0f}'))
 
-            # Formatting
-            ax.set_title('Budget Status by Task', fontsize=16,
-                         fontweight='bold', pad=20)
-            ax.set_xlabel('Project Tasks', fontsize=12)
-            ax.set_ylabel('Amount ($)', fontsize=12)
-            ax.set_xticks(x_pos)
-            ax.set_xticklabels(chart_data['Task'] if 'Task' in chart_data.columns else chart_data.index,
-                               rotation=45, ha='right')
-            ax.legend(loc='upper right')
-            ax.yaxis.set_major_formatter(
-                plt.FuncFormatter(lambda x, p: f'{x:,.0f}'))
-            ax.grid(axis='y', alpha=0.3)
+            # Rotate x-axis labels if too long
+            plt.xticks(rotation=45, ha='right')
 
+            # Add value labels on bars
+            for bar, value in zip(bars, values):
+                height = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2., height,
+                         f'${value:,.0f}', ha='center', va='bottom', fontsize=10)
+
+            # Adjust layout and save
             plt.tight_layout()
+            plt.savefig('budget_chart.png', dpi=300, bbox_inches='tight')
+            plt.close()
 
-            # Save chart
-            chart_filename = 'budget_chart.png'
-            plt.savefig(chart_filename, bbox_inches='tight',
-                        dpi=300, facecolor='white')
+            print("✅ Budget chart created successfully")
 
-            # Add to document
-            self.document.add_picture(chart_filename, width=Inches(6.5))
+        except Exception as e:
+            print(f"❌ Error creating budget chart: {e}")
 
-            # Add figure caption in 9pt font
-            caption_paragraph = self.document.add_paragraph(
-                "Figure 1: Total amounts budgeted and remaining by project task.")
-            caption_run = caption_paragraph.runs[0]
-            caption_run.font.size = Pt(9)
+    def add_summary_section(self):
+        """Add executive summary section"""
+        summary_header = self.document.add_heading(
+            'Executive Summary', level=2)
+        summary_header.alignment = WD_ALIGN_PARAGRAPH.LEFT
 
-            # Close the figure to prevent display and free memory
-            plt.close(fig)
+        # Default summary content
+        default_intro = """This report provides a comprehensive overview of the project budget and financial analysis. The budget has been carefully structured to ensure optimal resource allocation while maintaining project objectives."""
 
-            print("✅ Budget chart added")
+        self.add_markdown_content('Summary', default_intro)
+
+    def add_methodology_section(self):
+        """Add methodology section"""
+        method_header = self.document.add_heading('Methodology', level=2)
+        method_header.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+        # Default methodology content
+        default_methodology = """The budget analysis methodology includes:
+- Comprehensive review of all cost categories
+- Analysis of resource requirements and allocation
+- Risk assessment and contingency planning
+- Alignment with project objectives and timelines"""
+
+        self.add_markdown_content(
+            'Methodology', default_methodology)
+
+    def add_findings_section(self):
+        """Add key findings section with data insights"""
+        findings_header = self.document.add_heading('Key Findings', level=2)
+        findings_header.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+        # Generate insights from data
+        if self.data is not None:
+            try:
+                # Calculate basic statistics
+                numeric_cols = self.data.select_dtypes(
+                    include=['number']).columns
+                if len(numeric_cols) > 0:
+                    total_budget = self.data[numeric_cols].sum().sum()
+                    max_category = self.data.iloc[:, 0][self.data[numeric_cols].sum(
+                        axis=1).idxmax()]
+                    min_category = self.data.iloc[:, 0][self.data[numeric_cols].sum(
+                        axis=1).idxmin()]
+
+                    insights = f"""Based on the budget analysis, the following key findings have been identified:
+
+- Total project budget: ${total_budget:,.2f}
+- Highest budget allocation: {max_category}
+- Lowest budget allocation: {min_category}
+- Number of budget categories: {len(self.data)}
+
+The budget distribution shows a strategic allocation of resources across different project components."""
+
+                    self.add_markdown_content('Findings', insights)
+                else:
+                    # Fallback if no numeric data
+                    default_findings = """Key findings from the budget analysis include strategic resource allocation and alignment with project objectives."""
+                    self.add_markdown_content('Findings', default_findings)
+
+            except Exception as e:
+                print(f"⚠️  Error generating insights: {e}")
+                default_findings = """Key findings from the budget analysis include strategic resource allocation and alignment with project objectives."""
+                self.add_markdown_content('Findings', default_findings)
+        else:
+            default_key_points = """Key findings include:
+- Strategic budget allocation across project components
+- Alignment with organizational objectives
+- Comprehensive resource planning"""
+
+            self.add_markdown_content('key_points', default_key_points)
+
+    def add_chart_description(self):
+        """Add chart description section"""
+        # Default chart description
+        chart_desc = """The budget visualization chart provides a clear overview of resource allocation across different project categories. This visual representation helps stakeholders understand the distribution of funds and identify key investment areas."""
+
+        self.add_markdown_content('chart_description', chart_desc)
+
+    def add_recommendations_section(self):
+        """Add recommendations section"""
+        rec_header = self.document.add_heading('Recommendations', level=2)
+        rec_header.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+        # Try to get recommendations from content.md, with fallback
+        recommendations_content = self.read_section_from_content(
+            'Recommendations')
+
+        if not recommendations_content:
+            # Default recommendations
+            default_recommendations = """Based on the budget analysis, the following recommendations are proposed:
+
+- Continue monitoring budget performance against established benchmarks
+- Implement regular review cycles to ensure optimal resource utilization
+- Consider potential cost optimization opportunities
+- Maintain flexibility for adjustments based on project evolution
+- Establish clear reporting mechanisms for budget tracking"""
+
+            # Split into paragraphs and add to document
+            for paragraph in default_recommendations.strip().split('\n\n'):
+                if paragraph.strip():
+                    lines = paragraph.split('\n')
+                    for line in lines:
+                        line = line.strip()
+                        if line.startswith('- '):
+                            # Bullet point
+                            bullet_text = line[2:].strip()
+                            self.document.add_paragraph(
+                                bullet_text, style='List Bullet')
+                        elif line:
+                            # Regular paragraph
+                            self.document.add_paragraph(line)
+        else:
+            # Use content from content.md
+            self.add_markdown_content('Recommendations')
+
+    def add_conclusion_section(self):
+        """Add conclusion section"""
+        conclusion_header = self.document.add_heading('Conclusion', level=2)
+        conclusion_header.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+        # Default conclusion content
+        default_conclusion = """This budget analysis provides a comprehensive foundation for informed decision-making. The structured approach to resource allocation supports project success while maintaining fiscal responsibility. Regular monitoring and adjustment will ensure optimal outcomes."""
+
+        self.add_markdown_content('Conclusion', default_conclusion)
+
+    def add_challenges_section(self):
+        """Add challenges section"""
+        challenges_header = self.document.add_heading(
+            'Challenges and Mitigation', level=2)
+        challenges_header.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+        # Default challenges content
+        default_challenges = """Potential challenges and mitigation strategies include:
+- Budget variance management through regular monitoring
+- Resource availability through strategic planning
+- Market fluctuations through contingency planning"""
+
+        self.add_markdown_content('Challenges', default_challenges)
+
+    def add_next_steps_section(self):
+        """Add next steps section"""
+        next_steps_header = self.document.add_heading('Next Steps', level=2)
+        next_steps_header.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+        # Default next steps content
+        default_next_steps = """Recommended next steps include:
+- Implementation of budget monitoring systems
+- Regular stakeholder communication and reporting
+- Periodic review and adjustment processes
+- Development of contingency planning protocols"""
+
+        self.add_markdown_content(
+            'Next Steps', default_next_steps)
+
+    def rpt_pdf(self, word_file=None):
+        """Convert Word report to PDF
+
+        Args:
+            word_file (str): Path to Word document. If None, uses self.output_file
+
+        Returns:
+            str: Path to created PDF file if successful, None if failed
+        """
+        # Import pdf module - handle both package and script execution contexts
+        try:
+            # Try relative import first (for package installation)
+            from .pdf import convert_to_pdf
+        except ImportError:
+            try:
+                # Try absolute import (for installed package)
+                from autorpt.pdf import convert_to_pdf
+            except ImportError:
+                # If both fail, try adding current directory to path (for script execution)
+                import sys
+                from pathlib import Path
+                current_dir = Path(__file__).parent
+                sys.path.insert(0, str(current_dir))
+                try:
+                    from pdf import convert_to_pdf
+                except ImportError:
+                    print(
+                        "❌ Error: Could not import PDF conversion module. Make sure docx2pdf is installed.")
+                    return None
+
+        # Use provided file or default output file
+        source_file = word_file or self.output_file
+
+        if not source_file or not os.path.exists(source_file):
+            print(f"❌ Word document not found: {source_file}")
+            return None
+
+        success, result = convert_to_pdf(source_file)
+
+        if success:
+            print(f"🎉 PDF conversion completed: {result}")
+            return result
+        else:
+            print(f"❌ PDF conversion failed: {result}")
+            return None
+
+    def generate_report(self):
+        """Generate complete report"""
+        try:
+            print(f"📊 Loading data from {self.excel_file}...")
+            if not self.load_data():
+                return False
+
+            print("📄 Creating Word document...")
+            self.document = Document()
+
+            # Add title
+            title = self.document.add_heading('Project Budget Report', 0)
+            title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+            # Add date
+            date_para = self.document.add_paragraph(
+                f"Generated on: {datetime.now().strftime('%B %d, %Y')}")
+            date_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+            # Add sections
+            print("📝 Adding report sections...")
+            self.add_summary_section()
+            self.add_methodology_section()
+            self.create_budget_table()
+            self.add_findings_section()
+            self.add_chart_section()
+            self.add_chart_description()
+            self.add_recommendations_section()
+            self.add_challenges_section()
+            self.add_next_steps_section()
+            self.add_conclusion_section()
+
+            # Save document
+            self.document.save(self.output_file)
+            print(f"✅ Report generated successfully: {self.output_file}")
             return True
 
         except Exception as e:
-            print(f"❌ Error creating chart: {e}")
+            print(f"❌ Error generating report: {e}")
             return False
 
-    def add_challenges(self):
-        """Add challenges section"""
-        self.document.add_heading('Challenges', level=1)
+    def save_document(self, filename=None):
+        """Save the document to file"""
+        if self.document is None:
+            print("❌ No document to save")
+            return False
 
-        default_challenges = """Current challenges and mitigation strategies:
-
-- Resource allocation constraints and proposed solutions
-- Technical obstacles encountered and resolution approaches
-- Timeline adjustments required due to external factors"""
-
-        self.add_markdown_content('Challenges', default_challenges)
-        print("✅ Challenges section added")
-
-    def add_next_period_activities(self):
-        """Add next period activities section"""
-        self.document.add_heading('Next Period Activities', level=1)
-
-        default_next_period = """Planned activities for the upcoming reporting period:
-
-- Priority tasks and deliverables for next phase
-- Resource requirements and allocation plans
-- Key milestones and target completion dates"""
-
-        self.add_markdown_content(
-            'Next Period Activities', default_next_period)
-        print("✅ Next Period Activities section added")
-
-    def save_document(self):
-        """Save the Word document"""
+        save_path = filename or self.output_file
         try:
-            self.document.save(self.output_file)
-            print(f"✅ Report saved successfully: {self.output_file}")
+            self.document.save(save_path)
+            print(f"💾 Document saved: {save_path}")
             return True
         except Exception as e:
             print(f"❌ Error saving document: {e}")
             return False
 
-    def rpt_pdf(self, word_file=None):
-        """Convert Word report to PDF with the same name"""
-        # Import pdf module - handle both package and script execution contexts
-        try:
-            from .pdf import convert_to_pdf
-        except ImportError:
-            # If relative import fails, try absolute import for script execution
-            import sys
-            from pathlib import Path
-            current_dir = Path(__file__).parent
-            sys.path.insert(0, str(current_dir))
-            from pdf import convert_to_pdf
 
-        # Use the current output file if no word_file specified
-        if word_file is None:
-            word_file = self.output_file
-
-        success, result = convert_to_pdf(word_file)
-        return success
-
-    def generate_report(self):
-        """Generate the complete report"""
-        print("🚀 Starting report generation...")
-
-        # Load data
-        if not self.load_data():
-            return False
-
-        # Create document
-        self.create_document()
-
-        # Add sections
-        self.add_introduction()
-        self.add_deliverables_progress()
-        self.add_budget_table()
-        self.add_key_points()
-        self.add_budget_chart()
-        self.add_challenges()
-        self.add_next_period_activities()
-
-        # Save document
-        success = self.save_document()
-
-        if success:
-            print(f"🎉 Report generation completed successfully!")
-            print(f"📄 Output file: {self.output_file}")
-
-            # Print file size
-            file_size = os.path.getsize(self.output_file) / 1024  # KB
-            print(f"📊 File size: {file_size:.1f} KB")
-
-        return success
+# For backward compatibility
+AutoRpt = ReportGenerator
 
 
 def main():
@@ -500,12 +678,26 @@ Examples:
   python autorpt.py --pdf-only                    # Convert existing reports to PDF
   python autorpt.py --pdf-all                     # Convert all reports to PDF
   python autorpt.py -i budget.xlsx --pdf          # Custom input with PDF
+  python autorpt.py -m report.md                  # Add markdown file with auto headers
+  python autorpt.py -m report.md --pdf            # Add markdown + generate PDF
+  python autorpt.py --excel data.xlsx             # Add Excel table
+  python autorpt.py --mixed file1.md data.xlsx    # Add multiple files
         """)
 
     parser.add_argument('--input', '-i', default='budget.xlsx',
                         help='Input Excel file (default: budget.xlsx)')
     parser.add_argument('--output', '-o',
                         help='Output Word document filename')
+    parser.add_argument('--markdown', '-m',
+                        help='Markdown file to include with auto-detected headers')
+    parser.add_argument('--excel', '-e',
+                        help='Excel file to add as table')
+    parser.add_argument('--sheet',
+                        help='Specific sheet name in Excel file (for --excel option)')
+    parser.add_argument('--table-title',
+                        help='Title for the Excel table (for --excel option)')
+    parser.add_argument('--mixed', nargs='+',
+                        help='Add multiple markdown and/or Excel files')
     parser.add_argument('--pdf', '-p', action='store_true',
                         help='Also convert the report to PDF')
     parser.add_argument('--pdf-only', action='store_true',
@@ -532,14 +724,24 @@ Examples:
     if args.pdf_only or args.pdf_all:
         # Import pdf module - handle both package and script execution contexts
         try:
+            # Try relative import first (for package installation)
             from .pdf import convert_to_pdf, convert_all_reports
         except ImportError:
-            # If relative import fails, try absolute import for script execution
-            import sys
-            from pathlib import Path
-            current_dir = Path(__file__).parent
-            sys.path.insert(0, str(current_dir))
-            from pdf import convert_to_pdf, convert_all_reports
+            try:
+                # Try absolute import (for installed package)
+                from autorpt.pdf import convert_to_pdf, convert_all_reports
+            except ImportError:
+                # If both fail, try adding current directory to path (for script execution)
+                import sys
+                from pathlib import Path
+                current_dir = Path(__file__).parent
+                sys.path.insert(0, str(current_dir))
+                try:
+                    from pdf import convert_to_pdf, convert_all_reports
+                except ImportError:
+                    print(
+                        "❌ Error: Could not import PDF conversion module. Make sure docx2pdf is installed.")
+                    return 1
 
         if args.pdf_all:
             print("📁 Converting all Word reports to PDF...")
@@ -584,10 +786,58 @@ Examples:
 
     # Normal report generation flow
     generator = ReportGenerator(args.input, args.output)
+
+    # Generate basic report first
+    print("🚀 Starting report generation...")
     success = generator.generate_report()
 
+    if not success:
+        print("❌ Failed to generate base report")
+        return 1
+
+    # Add additional content if specified
+    if args.markdown:
+        if os.path.exists(args.markdown):
+            print(f"📄 Adding markdown file: {args.markdown}")
+            markdown_success = generator.add_full_markdown_file(
+                args.markdown, start_header_level=1)
+            if markdown_success:
+                print("✅ Markdown content added successfully")
+                generator.save_document()
+            else:
+                print(
+                    "⚠️  Failed to add markdown content, but report generated successfully")
+        else:
+            print(f"❌ Markdown file not found: {args.markdown}")
+
+    if args.excel:
+        if os.path.exists(args.excel):
+            print(f"📊 Adding Excel table: {args.excel}")
+            excel_success = generator.add_excel_table(
+                args.excel, args.sheet, args.table_title, start_header_level=1)
+            if excel_success:
+                print("✅ Excel table added successfully")
+                generator.save_document()
+            else:
+                print("⚠️  Failed to add Excel table, but report generated successfully")
+        else:
+            print(f"❌ Excel file not found: {args.excel}")
+
+    if args.mixed:
+        print(f"📁 Adding mixed content: {', '.join(args.mixed)}")
+        existing_files = [f for f in args.mixed if os.path.exists(f)]
+        if existing_files:
+            results = generator.add_mixed_content(
+                existing_files, start_header_level=1)
+            print(f"✅ Successfully added {results['success']} files")
+            if results['failed'] > 0:
+                print(f"⚠️  Failed to add {results['failed']} files")
+            generator.save_document()
+        else:
+            print("❌ None of the specified mixed content files were found")
+
     # Convert to PDF if requested and report generation was successful
-    if success and args.pdf:
+    if args.pdf:
         pdf_success = generator.rpt_pdf()
         if not pdf_success:
             print("⚠️  Report generated successfully but PDF conversion failed")
@@ -606,14 +856,24 @@ def convert_to_pdf(word_file):
     """
     # Import pdf module - handle both package and script execution contexts
     try:
+        # Try relative import first (for package installation)
         from .pdf import convert_to_pdf as pdf_convert
     except ImportError:
-        # If relative import fails, try absolute import for script execution
-        import sys
-        from pathlib import Path
-        current_dir = Path(__file__).parent
-        sys.path.insert(0, str(current_dir))
-        from pdf import convert_to_pdf as pdf_convert
+        try:
+            # Try absolute import (for installed package)
+            from autorpt.pdf import convert_to_pdf as pdf_convert
+        except ImportError:
+            # If both fail, try adding current directory to path (for script execution)
+            import sys
+            from pathlib import Path
+            current_dir = Path(__file__).parent
+            sys.path.insert(0, str(current_dir))
+            try:
+                from pdf import convert_to_pdf as pdf_convert
+            except ImportError:
+                print(
+                    "❌ Error: Could not import PDF conversion module. Make sure docx2pdf is installed.")
+                return False
 
     success, result = pdf_convert(word_file)
     return success
