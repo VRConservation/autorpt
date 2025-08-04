@@ -11,13 +11,81 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 class AutoReportGenerator:
     """Convert markdown files and Excel tables to Word document sections with proper formatting."""
 
-    def __init__(self, document=None):
+    def __init__(self, document=None, content_folder="reports"):
         """Initialize the generator with an optional Word document.
 
         Args:
             document: Existing Word document object, or None to create new one
+            content_folder (str): Folder to scan for additional content files
         """
         self.document = document if document else Document()
+        self.content_folder = Path(content_folder)
+
+    def discover_content_files(self, include_patterns=None, exclude_patterns=None):
+        """Automatically discover markdown and Excel files in the content folder.
+
+        Args:
+            include_patterns (list): List of glob patterns to include (default: ['*.md', '*.xlsx', '*.xls'])
+            exclude_patterns (list): List of patterns to exclude (default: ['*report*.docx'])
+
+        Returns:
+            dict: Dictionary with 'markdown' and 'excel' file lists
+        """
+        if include_patterns is None:
+            include_patterns = ['*.md', '*.markdown', '*.xlsx', '*.xls']
+
+        if exclude_patterns is None:
+            exclude_patterns = ['*report*.docx', '*report*.pdf']
+
+        discovered = {'markdown': [], 'excel': [], 'all': []}
+
+        if not self.content_folder.exists():
+            print(f"📁 Content folder '{self.content_folder}' not found")
+            return discovered
+
+        try:
+            # Find all matching files
+            all_files = []
+            for pattern in include_patterns:
+                all_files.extend(self.content_folder.glob(pattern))
+
+            # Filter out excluded patterns
+            filtered_files = []
+            for file_path in all_files:
+                exclude_file = False
+                for exclude_pattern in exclude_patterns:
+                    if file_path.match(exclude_pattern):
+                        exclude_file = True
+                        break
+                if not exclude_file:
+                    filtered_files.append(file_path)
+
+            # Categorize files
+            for file_path in filtered_files:
+                if file_path.suffix.lower() in ['.md', '.markdown']:
+                    discovered['markdown'].append(file_path)
+                elif file_path.suffix.lower() in ['.xlsx', '.xls']:
+                    discovered['excel'].append(file_path)
+                discovered['all'].append(file_path)
+
+            # Sort files by name for consistent ordering
+            discovered['markdown'].sort(key=lambda x: x.name)
+            discovered['excel'].sort(key=lambda x: x.name)
+            discovered['all'].sort(key=lambda x: x.name)
+
+            if discovered['all']:
+                print(
+                    f"📂 Discovered {len(discovered['all'])} content files in '{self.content_folder}':")
+                for file_path in discovered['all']:
+                    print(f"   📄 {file_path.name}")
+            else:
+                print(
+                    f"📂 No additional content files found in '{self.content_folder}'")
+
+        except Exception as e:
+            print(f"❌ Error discovering content files: {e}")
+
+        return discovered
 
     def parse_markdown_file(self, markdown_file_path):
         """Parse a markdown file and extract structured content.
@@ -303,6 +371,32 @@ class AutoReportGenerator:
 
         return results
 
+    def add_all_content_from_folder(self, start_header_level=1, include_patterns=None, exclude_patterns=None):
+        """Automatically discover and add all content files from the content folder.
+
+        Args:
+            start_header_level (int): Starting header level
+            include_patterns (list): List of glob patterns to include
+            exclude_patterns (list): List of patterns to exclude
+
+        Returns:
+            dict: Results summary with success/failure counts
+        """
+        discovered = self.discover_content_files(
+            include_patterns, exclude_patterns)
+
+        if not discovered['all']:
+            return {'success': 0, 'failed': 0, 'files': [], 'discovered': 0}
+
+        # Convert Path objects to strings for add_mixed_content_to_document
+        file_paths = [str(file_path) for file_path in discovered['all']]
+
+        results = self.add_mixed_content_to_document(
+            file_paths, start_header_level)
+        results['discovered'] = len(discovered['all'])
+
+        return results
+
     def _add_formatted_content(self, content):
         """Add formatted content to the document with markdown-style formatting.
 
@@ -442,6 +536,67 @@ def convert_mixed_content_to_word(content_files, output_file, document_title=Non
     """
     generator = AutoReportGenerator()
     return generator.generate_auto_report(content_files, output_file, document_title)
+
+
+def auto_generate_from_folder(content_folder="reports", output_file=None, document_title=None,
+                              include_patterns=None, exclude_patterns=None):
+    """Automatically discover and convert all content files in a folder to a Word document.
+
+    Args:
+        content_folder (str): Folder to scan for content files (default: "reports")
+        output_file (str): Output path for Word document (auto-generated if None)
+        document_title (str): Optional document title
+        include_patterns (list): File patterns to include
+        exclude_patterns (list): File patterns to exclude
+
+    Returns:
+        dict: Results with success/failure counts and output file path
+    """
+    generator = AutoReportGenerator(content_folder=content_folder)
+
+    # Generate output filename if not provided
+    if not output_file:
+        from datetime import datetime
+        content_path = Path(content_folder)
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
+        output_file = content_path / f"auto_report_{timestamp}.docx"
+
+    # Create new document with title
+    generator.document = Document()
+    if document_title:
+        generator.document.add_heading(document_title, level=0)
+    elif not document_title:
+        generator.document.add_heading("Auto-Generated Report", level=0)
+        # Add generation info
+        from datetime import datetime
+        date_para = generator.document.add_paragraph(
+            f"Generated on: {datetime.now().strftime('%B %d, %Y at %I:%M %p')}"
+        )
+        date_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    # Process all discovered files
+    results = generator.add_all_content_from_folder(
+        start_header_level=1,
+        include_patterns=include_patterns,
+        exclude_patterns=exclude_patterns
+    )
+
+    # Save document
+    try:
+        generator.document.save(output_file)
+        results['output_file'] = str(output_file)
+        results['saved'] = True
+        print(f"✅ Auto-generated report saved: {output_file}")
+        print(
+            f"📊 Processed {results['success']}/{results['discovered']} files successfully")
+        if results['failed'] > 0:
+            print(f"⚠️  {results['failed']} files failed to process")
+    except Exception as e:
+        results['saved'] = False
+        results['error'] = str(e)
+        print(f"❌ Error saving document: {e}")
+
+    return results
 
 
 def add_mixed_content_to_existing_document(document, content_files, start_level=1):

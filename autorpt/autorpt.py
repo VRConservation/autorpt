@@ -230,6 +230,36 @@ class ReportGenerator:
 
         return add_mixed_content_to_existing_document(self.document, content_files, start_header_level)
 
+    def add_all_content_from_folder(self, content_folder="reports", start_header_level=1):
+        """Automatically discover and add all markdown and Excel files from a folder.
+
+        Args:
+            content_folder (str): Folder to scan for content files
+            start_header_level (int): Starting header level for Word document (1-9)
+
+        Returns:
+            dict: Results summary with success/failure counts
+        """
+        try:
+            from .gen_auto import AutoReportGenerator
+        except ImportError:
+            try:
+                from autorpt.gen_auto import AutoReportGenerator
+            except ImportError:
+                import sys
+                from pathlib import Path
+                current_dir = Path(__file__).parent
+                sys.path.insert(0, str(current_dir))
+                try:
+                    from gen_auto import AutoReportGenerator
+                except ImportError:
+                    print("❌ Error: Could not import auto-generation module.")
+                    return {'success': 0, 'failed': 1, 'files': [], 'discovered': 0}
+
+        # Use the existing document
+        temp_generator = AutoReportGenerator(self.document, content_folder)
+        return temp_generator.add_all_content_from_folder(start_header_level)
+
     def _remove_table_borders(self, table):
         """Remove all borders from table for cleaner look"""
         from docx.oxml.shared import qn
@@ -682,6 +712,8 @@ Examples:
   python autorpt.py -m report.md --pdf            # Add markdown + generate PDF
   python autorpt.py --excel data.xlsx             # Add Excel table
   python autorpt.py --mixed file1.md data.xlsx    # Add multiple files
+  python autorpt.py --auto-content                # Auto-discover files in reports folder
+  python autorpt.py --auto-content --content-folder "data"  # Auto-discover in custom folder
         """)
 
     parser.add_argument('--input', '-i', default='budget.xlsx',
@@ -698,6 +730,10 @@ Examples:
                         help='Title for the Excel table (for --excel option)')
     parser.add_argument('--mixed', nargs='+',
                         help='Add multiple markdown and/or Excel files')
+    parser.add_argument('--auto-content', action='store_true',
+                        help='Automatically discover and add all .md and .xlsx files from content folder')
+    parser.add_argument('--content-folder', default='reports',
+                        help='Folder to scan for auto-content files (default: reports)')
     parser.add_argument('--pdf', '-p', action='store_true',
                         help='Also convert the report to PDF')
     parser.add_argument('--pdf-only', action='store_true',
@@ -835,6 +871,22 @@ Examples:
             generator.save_document()
         else:
             print("❌ None of the specified mixed content files were found")
+
+    # Auto-discover and add content from folder
+    if args.auto_content:
+        print(
+            f"🔍 Auto-discovering content files in '{args.content_folder}' folder...")
+        results = generator.add_all_content_from_folder(
+            args.content_folder, start_header_level=1)
+        if results['discovered'] > 0:
+            print(
+                f"✅ Successfully processed {results['success']}/{results['discovered']} discovered files")
+            if results['failed'] > 0:
+                print(f"⚠️  Failed to process {results['failed']} files")
+            generator.save_document()
+        else:
+            print(
+                f"📂 No additional content files found in '{args.content_folder}' folder")
 
     # Convert to PDF if requested and report generation was successful
     if args.pdf:
