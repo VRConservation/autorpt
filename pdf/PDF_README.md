@@ -1,11 +1,46 @@
 # PDF Conversion for autorpt
 
-Complete guid### 🚀 Current Working Commands (Use These Now)
+Complete PDF conversion functionality in the autorpt package.
 
-For immediate use with the current version:
+## Quick Start for Users
+
+### 🚀 Simple Commands (Recommended)
+
+The easiest way to convert reports to PDF after installing autorpt:
 
 ```bash
 # Convert most recent report to PDF (most common use case)
+autorpt --pdf
+
+# Convert all Word reports to PDF
+autorpt --pdf-all
+
+# Generate new report and convert to PDF
+autorpt --generate --pdf
+```
+
+> **💡 User Tip:** These commands work from any directory once autorpt is installed with `pip install -e .`
+
+### Installation for Simple Commands
+
+To use the clean commands above:
+
+```bash
+# From the autorpt project directory
+pip install -e .
+
+# Then you can use the simple commands anywhere:
+autorpt --pdf              # Convert latest report
+autorpt --pdf-all          # Convert all reports
+autorpt --generate --pdf   # Generate + convert
+```
+
+### Alternative Commands (If Simple Commands Don't Work)
+
+If you haven't installed autorpt in editable mode, use these module syntax commands:
+
+```bash
+# Convert most recent report to PDF
 python -m autorpt.autorpt --pdf
 
 # Convert all Word reports to PDF
@@ -15,13 +50,11 @@ python -m autorpt.autorpt --pdf-all
 python -m autorpt.autorpt --generate --pdf
 ```
 
-> **💡 Key Point:** These commands work from any directory right now! Use the module syntax until you install the editable version.n functionality in the autorpt package.
-
 ## Overview
 
 Convert Word reports (.docx) to PDF format with powerful automation options. The PDF conversion feature provides multiple interfaces: direct command-line usage, convenience scripts, and programmatic integration.
 
-## Installation
+## Installation Requirements
 
 Install the required PDF conversion dependency:
 
@@ -35,20 +68,11 @@ Or install from requirements:
 pip install -r requirements.txt
 ```
 
-### Installing the Latest Development Version
+## Advanced Usage for Developers
 
-**For developers working with source code:**
+### Direct pdf.py Module Usage
 
-```bash
-# From the autorpt project directory
-pip install -e .
-```
-
-This installs autorpt in "editable" mode, so your code changes immediately affect the `autorpt` command.
-
-**For end users on other computers:**
-
-The commands work right now using module syntax:
+For development and debugging purposes, you can use the pdf.py module directly:
 
 ```bash
 # Current commands that work everywhere (with autorpt installed)
