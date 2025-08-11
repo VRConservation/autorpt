@@ -6,7 +6,7 @@ import io
 from os import path as op
 from setuptools import setup, find_packages
 
-with open('README.md') as readme_file:
+with open('README.md', encoding='utf-8') as readme_file:
     readme = readme_file.read()
 
 here = op.abspath(op.dirname(__file__))
@@ -16,13 +16,14 @@ with io.open(op.join(here, "requirements.txt"), encoding="utf-8") as f:
     all_reqs = f.read().split("\n")
 
 install_requires = [x.strip() for x in all_reqs if "git+" not in x]
-dependency_links = [x.strip().replace("git+", "") for x in all_reqs if "git+" not in x]
+dependency_links = [x.strip().replace("git+", "")
+                    for x in all_reqs if "git+" not in x]
 
-requirements = [ ]
+requirements = []
 
-setup_requirements = [ ]
+setup_requirements = []
 
-test_requirements = [ ]
+test_requirements = []
 
 setup(
     author="Vance Russell",

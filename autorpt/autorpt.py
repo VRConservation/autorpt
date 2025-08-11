@@ -1,17 +1,25 @@
 """Main module."""
 
+import argparse
+import os
+import re
+from datetime import datetime
+from pathlib import Path
+
 import pandas as pd
 from matplotlib import pyplot as plt
 from docx import Document
 from docx.shared import Inches, Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from pathlib import Path
-import argparse
-from datetime import datetime
-import os
 
 
 class ReportGenerator:
+    """Generate automated reports from md and excel data
+
+    This class provides functionality to create comprehensive Word documents
+    containing budget analysis, charts, and insights.
+    """
+
     def __init__(self, excel_file='budget.xlsx', output_file=None):
         self.excel_file = excel_file
         self.document = None
@@ -73,7 +81,6 @@ class ReportGenerator:
                 content = f.read()
 
             # Split content by headers (## Header Name)
-            import re
             sections = re.split(r'^## (.+)$', content, flags=re.MULTILINE)
 
             # First section before any header is ignored
@@ -167,9 +174,13 @@ class ReportGenerator:
                     print("❌ Error: Could not import auto-generation module.")
                     return False
 
-        return add_markdown_to_existing_document(self.document, markdown_file_path, start_header_level)
+        return add_markdown_to_existing_document(
+            self.document, markdown_file_path, start_header_level
+        )
 
-    def add_excel_table(self, excel_file_path, sheet_name=None, table_title=None, start_header_level=1):
+    def add_excel_table(
+        self, excel_file_path, sheet_name=None, table_title=None, start_header_level=1
+    ):
         """Add Excel table to document with automatic formatting.
 
         Args:
@@ -225,9 +236,13 @@ class ReportGenerator:
                     print("❌ Error: Could not import auto-generation module.")
                     return {'success': 0, 'failed': 1, 'files': []}
 
-        return add_mixed_content_to_existing_document(self.document, content_files, start_header_level)
+        return add_mixed_content_to_existing_document(
+            self.document, content_files, start_header_level
+        )
 
-    def add_all_content_from_folder(self, content_folder="reports", start_header_level=1):
+    def add_all_content_from_folder(
+        self, content_folder="reports", start_header_level=1
+    ):
         """Automatically discover and add all markdown and Excel files from a folder.
 
         Args:
@@ -257,7 +272,11 @@ class ReportGenerator:
         return temp_generator.add_all_content_from_folder(start_header_level)
 
     def _remove_table_borders(self, table):
-        """Remove all borders from table for cleaner look"""
+        """Remove all borders from table for cleaner look
+
+        Args:
+            table: Word document table object to remove borders
+        """
         from docx.oxml import parse_xml
 
         # Create XML for no borders
@@ -276,7 +295,9 @@ class ReportGenerator:
         # Access protected member for low-level XML manipulation (required for border removal)
         table._tbl.tblPr.append(borders_element)  # type: ignore
 
-    def _format_cell_alignment(self, cell, column_index, is_header=False, is_total_row=False):
+    def _format_cell_alignment(
+        self, cell, column_index, is_header=False, is_total_row=False
+    ):
         """Format cell alignment based on content type"""
 
         # Set alignment based on column content
@@ -505,7 +526,12 @@ The budget distribution shows a strategic allocation of resources across differe
     def add_chart_description(self):
         """Add chart description section"""
         # Default chart description
-        chart_desc = """The budget visualization chart provides a clear overview of resource allocation across different project categories. This visual representation helps stakeholders understand the distribution of funds and identify key investment areas."""
+        chart_desc = (
+            "The budget visualization chart provides a clear overview of resource "
+            "allocation across different project categories. This visual representation "
+            "helps stakeholders understand the distribution of funds and identify key "
+            "investment areas."
+        )
 
         self.add_markdown_content('chart_description', chart_desc)
 
@@ -611,7 +637,9 @@ The budget distribution shows a strategic allocation of resources across differe
                     from pdf import convert_to_pdf as pdf_convert_func
                 except ImportError:
                     print(
-                        "❌ Error: Could not import PDF conversion module. Make sure docx2pdf is installed.")
+                        "❌ Error: Could not import PDF conversion module. "
+                        "Make sure docx2pdf is installed."
+                    )
                     return None
 
         # Use provided file or default output file
@@ -727,7 +755,8 @@ Examples:
     parser.add_argument('--mixed', nargs='+',
                         help='Add multiple markdown and/or Excel files')
     parser.add_argument('--auto-content', action='store_true',
-                        help='Automatically discover and add all .md and .xlsx files from content folder')
+                        help='Automatically discover and add all .md and .xlsx files '
+                             'from content folder')
     parser.add_argument('--content-folder', default='reports',
                         help='Folder to scan for auto-content files (default: reports)')
     parser.add_argument('--pdf', '-p', action='store_true',
@@ -773,7 +802,9 @@ Examples:
                     from pdf import convert_to_pdf as pdf_convert_func, convert_all_reports
                 except ImportError:
                     print(
-                        "❌ Error: Could not import PDF conversion module. Make sure docx2pdf is installed.")
+                        "❌ Error: Could not import PDF conversion module. "
+                        "Make sure docx2pdf is installed."
+                    )
                     return 1
 
         if args.pdf_all:
@@ -926,7 +957,9 @@ def convert_docx_to_pdf(word_file):
                 from pdf import convert_to_pdf as pdf_convert
             except ImportError:
                 print(
-                    "❌ Error: Could not import PDF conversion module. Make sure docx2pdf is installed.")
+                    "❌ Error: Could not import PDF conversion module. "
+                    "Make sure docx2pdf is installed."
+                )
                 return False
 
     success, _ = pdf_convert(word_file)
