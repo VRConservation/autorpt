@@ -274,7 +274,7 @@ class ReportGenerator:
 
         borders_element = parse_xml(no_border_xml)
         # Access protected member for low-level XML manipulation (required for border removal)
-        table._tbl.tblPr.append(borders_element)  # type: ignore[attr-defined]
+        table._tbl.tblPr.append(borders_element)  # type: ignore
 
     def _format_cell_alignment(self, cell, column_index, is_header=False, is_total_row=False):
         """Format cell alignment based on content type"""
