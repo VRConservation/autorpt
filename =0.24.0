@@ -1,0 +1,327 @@
+Defaulting to user installation because normal site-packages is not writeable
+Collecting mkdocs
+  Downloading mkdocs-1.6.1-py3-none-any.whl.metadata
+     - 6.0 kB ? 0:00:00
+Collecting mkdocs-material
+  Downloading mkdocs_material-9.6.17-py3-none-any.whl.metadata
+     - 19.1 kB ? 0:00:00
+Collecting mkdocs-git-revision-date-plugin
+  Downloading mkdocs_git_revision_date_plugin-0.3.2-py3-none-any.whl.metadata
+     - 466 bytes ? 0:00:00
+Collecting mkdocs-git-revision-date-localized-plugin
+  Downloading mkdocs_git_revision_date_localized_plugin-1.4.7-py3-none-any.whl.metadata
+     - 5.8 kB ? 0:00:00
+Collecting mkdocs-jupyter
+  Downloading mkdocs_jupyter-0.25.1-py3-none-any.whl.metadata
+     - 9.4 kB ? 0:00:00
+Collecting mkdocstrings
+  Downloading mkdocstrings-0.30.0-py3-none-any.whl.metadata
+     - 8.3 kB ? 0:00:00
+Collecting mkdocstrings-python-legacy
+  Downloading mkdocstrings_python_legacy-0.2.7-py3-none-any.whl.metadata
+     - 5.2 kB ? 0:00:00
+Collecting pymdown-extensions
+  Downloading pymdown_extensions-10.16.1-py3-none-any.whl.metadata
+     - 3.1 kB ? 0:00:00
+Requirement already satisfied: click>=7.0 in /usr/lib/python3/dist-packages (from mkdocs) (8.1.6)
+Collecting ghp-import>=1.0 (from mkdocs)
+  Downloading ghp_import-2.1.0-py3-none-any.whl.metadata
+     - 7.2 kB ? 0:00:00
+Requirement already satisfied: jinja2>=2.11.1 in /usr/lib/python3/dist-packages (from mkdocs) (3.1.2)
+Collecting markdown>=3.3.6 (from mkdocs)
+  Downloading markdown-3.8.2-py3-none-any.whl.metadata
+     - 5.1 kB ? 0:00:00
+Requirement already satisfied: markupsafe>=2.0.1 in /usr/lib/python3/dist-packages (from mkdocs) (2.1.5)
+Collecting mergedeep>=1.3.4 (from mkdocs)
+  Downloading mergedeep-1.3.4-py3-none-any.whl.metadata
+     - 4.3 kB ? 0:00:00
+Collecting mkdocs-get-deps>=0.2.0 (from mkdocs)
+  Downloading mkdocs_get_deps-0.2.0-py3-none-any.whl.metadata
+     - 4.0 kB ? 0:00:00
+Requirement already satisfied: packaging>=20.5 in /usr/lib/python3/dist-packages (from mkdocs) (24.0)
+Collecting pathspec>=0.11.1 (from mkdocs)
+  Downloading pathspec-0.12.1-py3-none-any.whl.metadata
+     - 21.2 kB ? 0:00:00
+Collecting pyyaml-env-tag>=0.1 (from mkdocs)
+  Downloading pyyaml_env_tag-1.1-py3-none-any.whl.metadata
+     - 5.5 kB ? 0:00:00
+Requirement already satisfied: pyyaml>=5.1 in /usr/lib/python3/dist-packages (from mkdocs) (6.0.1)
+Collecting watchdog>=2.0 (from mkdocs)
+  Downloading watchdog-6.0.0-py3-none-manylinux2014_x86_64.whl.metadata
+     - 44.3 kB 159.1 MB/s 0:00:00
+Requirement already satisfied: babel~=2.10 in /usr/lib/python3/dist-packages (from mkdocs-material) (2.10.3)
+Collecting backrefs~=5.7.post1 (from mkdocs-material)
+  Downloading backrefs-5.9-py312-none-any.whl.metadata
+     - 3.2 kB ? 0:00:00
+Requirement already satisfied: colorama~=0.4 in /usr/lib/python3/dist-packages (from mkdocs-material) (0.4.6)
+Collecting mkdocs-material-extensions~=1.3 (from mkdocs-material)
+  Downloading mkdocs_material_extensions-1.3.1-py3-none-any.whl.metadata
+     - 6.9 kB ? 0:00:00
+Collecting paginate~=0.5 (from mkdocs-material)
+  Downloading paginate-0.5.7-py2.py3-none-any.whl.metadata
+     - 11.4 kB ? 0:00:00
+Requirement already satisfied: pygments~=2.16 in /usr/lib/python3/dist-packages (from mkdocs-material) (2.17.2)
+Requirement already satisfied: requests~=2.26 in /usr/lib/python3/dist-packages (from mkdocs-material) (2.31.0)
+Collecting GitPython (from mkdocs-git-revision-date-plugin)
+  Downloading gitpython-3.1.45-py3-none-any.whl.metadata
+     - 13.5 kB ? 0:00:00
+Collecting pytz>=2025.1 (from mkdocs-git-revision-date-localized-plugin)
+  Downloading pytz-2025.2-py2.py3-none-any.whl.metadata
+     - 22.4 kB ? 0:00:00
+Collecting ipykernel<7.0.0,>6.0.0 (from mkdocs-jupyter)
+  Downloading ipykernel-6.30.1-py3-none-any.whl.metadata
+     - 6.2 kB ? 0:00:00
+Collecting jupytext<2,>1.13.8 (from mkdocs-jupyter)
+  Downloading jupytext-1.17.2-py3-none-any.whl.metadata
+     - 14.6 kB ? 0:00:00
+Collecting nbconvert<8,>=7.2.9 (from mkdocs-jupyter)
+  Downloading nbconvert-7.16.6-py3-none-any.whl.metadata
+     - 8.5 kB ? 0:00:00
+Collecting comm>=0.1.1 (from ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading comm-0.2.3-py3-none-any.whl.metadata
+     - 3.7 kB ? 0:00:00
+Collecting debugpy>=1.6.5 (from ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading debugpy-1.8.16-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata
+     - 1.3 kB ? 0:00:00
+Collecting ipython>=7.23.1 (from ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading ipython-9.4.0-py3-none-any.whl.metadata
+     - 4.4 kB ? 0:00:00
+Collecting jupyter-client>=8.0.0 (from ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading jupyter_client-8.6.3-py3-none-any.whl.metadata
+     - 8.3 kB ? 0:00:00
+Collecting jupyter-core!=5.0.*,>=4.12 (from ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading jupyter_core-5.8.1-py3-none-any.whl.metadata
+     - 1.6 kB ? 0:00:00
+Collecting matplotlib-inline>=0.1 (from ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading matplotlib_inline-0.1.7-py3-none-any.whl.metadata
+     - 3.9 kB ? 0:00:00
+Collecting nest-asyncio>=1.4 (from ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading nest_asyncio-1.6.0-py3-none-any.whl.metadata
+     - 2.8 kB ? 0:00:00
+Collecting psutil>=5.7 (from ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading psutil-7.0.0-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata
+     - 22.3 kB ? 0:00:00
+Collecting pyzmq>=25 (from ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading pyzmq-27.0.2-cp312-abi3-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl.metadata
+     - 6.0 kB ? 0:00:00
+Collecting tornado>=6.2 (from ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading tornado-6.5.2-cp39-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata
+     - 2.8 kB ? 0:00:00
+Collecting traitlets>=5.4.0 (from ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading traitlets-5.14.3-py3-none-any.whl.metadata
+     - 10.7 kB ? 0:00:00
+Requirement already satisfied: markdown-it-py>=1.0 in /usr/lib/python3/dist-packages (from jupytext<2,>1.13.8->mkdocs-jupyter) (3.0.0)
+Collecting mdit-py-plugins (from jupytext<2,>1.13.8->mkdocs-jupyter)
+  Downloading mdit_py_plugins-0.5.0-py3-none-any.whl.metadata
+     - 2.8 kB ? 0:00:00
+Collecting nbformat (from jupytext<2,>1.13.8->mkdocs-jupyter)
+  Downloading nbformat-5.10.4-py3-none-any.whl.metadata
+     - 3.6 kB ? 0:00:00
+Collecting beautifulsoup4 (from nbconvert<8,>=7.2.9->mkdocs-jupyter)
+  Downloading beautifulsoup4-4.13.4-py3-none-any.whl.metadata
+     - 3.8 kB ? 0:00:00
+Collecting bleach!=5.0.0 (from bleach[css]!=5.0.0->nbconvert<8,>=7.2.9->mkdocs-jupyter)
+  Downloading bleach-6.2.0-py3-none-any.whl.metadata
+     - 30.8 kB ? 0:00:00
+Collecting defusedxml (from nbconvert<8,>=7.2.9->mkdocs-jupyter)
+  Downloading defusedxml-0.7.1-py2.py3-none-any.whl.metadata
+     - 32.5 kB ? 0:00:00
+Collecting jupyterlab-pygments (from nbconvert<8,>=7.2.9->mkdocs-jupyter)
+  Downloading jupyterlab_pygments-0.3.0-py3-none-any.whl.metadata
+     - 4.4 kB ? 0:00:00
+Collecting mistune<4,>=2.0.3 (from nbconvert<8,>=7.2.9->mkdocs-jupyter)
+  Downloading mistune-3.1.3-py3-none-any.whl.metadata
+     - 1.8 kB ? 0:00:00
+Collecting nbclient>=0.5.0 (from nbconvert<8,>=7.2.9->mkdocs-jupyter)
+  Downloading nbclient-0.10.2-py3-none-any.whl.metadata
+     - 8.3 kB ? 0:00:00
+Collecting pandocfilters>=1.4.1 (from nbconvert<8,>=7.2.9->mkdocs-jupyter)
+  Downloading pandocfilters-1.5.1-py2.py3-none-any.whl.metadata
+     - 9.0 kB ? 0:00:00
+Collecting mkdocs-autorefs>=1.4 (from mkdocstrings)
+  Downloading mkdocs_autorefs-1.4.2-py3-none-any.whl.metadata
+     - 13.9 kB ? 0:00:00
+Collecting pytkdocs>=0.14 (from mkdocstrings-python-legacy)
+  Downloading pytkdocs-0.16.5-py3-none-any.whl.metadata
+     - 8.7 kB ? 0:00:00
+Collecting webencodings (from bleach!=5.0.0->bleach[css]!=5.0.0->nbconvert<8,>=7.2.9->mkdocs-jupyter)
+  Downloading webencodings-0.5.1-py2.py3-none-any.whl.metadata
+     - 2.1 kB ? 0:00:00
+Collecting tinycss2<1.5,>=1.1.0 (from bleach[css]!=5.0.0->nbconvert<8,>=7.2.9->mkdocs-jupyter)
+  Downloading tinycss2-1.4.0-py3-none-any.whl.metadata
+     - 3.0 kB ? 0:00:00
+Requirement already satisfied: python-dateutil>=2.8.1 in /usr/lib/python3/dist-packages (from ghp-import>=1.0->mkdocs) (2.8.2)
+Collecting gitdb<5,>=4.0.1 (from GitPython->mkdocs-git-revision-date-plugin)
+  Downloading gitdb-4.0.12-py3-none-any.whl.metadata
+     - 1.2 kB ? 0:00:00
+Collecting smmap<6,>=3.0.1 (from gitdb<5,>=4.0.1->GitPython->mkdocs-git-revision-date-plugin)
+  Downloading smmap-5.0.2-py3-none-any.whl.metadata
+     - 4.3 kB ? 0:00:00
+Collecting decorator (from ipython>=7.23.1->ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading decorator-5.2.1-py3-none-any.whl.metadata
+     - 3.9 kB ? 0:00:00
+Collecting ipython-pygments-lexers (from ipython>=7.23.1->ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading ipython_pygments_lexers-1.1.1-py3-none-any.whl.metadata
+     - 1.1 kB ? 0:00:00
+Collecting jedi>=0.16 (from ipython>=7.23.1->ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading jedi-0.19.2-py2.py3-none-any.whl.metadata
+     - 22.9 kB ? 0:00:00
+Requirement already satisfied: pexpect>4.3 in /usr/lib/python3/dist-packages (from ipython>=7.23.1->ipykernel<7.0.0,>6.0.0->mkdocs-jupyter) (4.9.0)
+Collecting prompt_toolkit<3.1.0,>=3.0.41 (from ipython>=7.23.1->ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading prompt_toolkit-3.0.51-py3-none-any.whl.metadata
+     - 6.4 kB ? 0:00:00
+Collecting stack_data (from ipython>=7.23.1->ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading stack_data-0.6.3-py3-none-any.whl.metadata
+     - 18.4 kB ? 0:00:00
+Collecting wcwidth (from prompt_toolkit<3.1.0,>=3.0.41->ipython>=7.23.1->ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading wcwidth-0.2.13-py2.py3-none-any.whl.metadata
+     - 15.0 kB ? 0:00:00
+Collecting parso<0.9.0,>=0.8.4 (from jedi>=0.16->ipython>=7.23.1->ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading parso-0.8.4-py2.py3-none-any.whl.metadata
+     - 7.7 kB ? 0:00:00
+Requirement already satisfied: platformdirs>=2.5 in /usr/local/lib/python3.12/dist-packages (from jupyter-core!=5.0.*,>=4.12->ipykernel<7.0.0,>6.0.0->mkdocs-jupyter) (4.3.8)
+Requirement already satisfied: mdurl~=0.1 in /usr/lib/python3/dist-packages (from markdown-it-py>=1.0->jupytext<2,>1.13.8->mkdocs-jupyter) (0.1.2)
+Collecting fastjsonschema>=2.15 (from nbformat->jupytext<2,>1.13.8->mkdocs-jupyter)
+  Downloading fastjsonschema-2.21.2-py3-none-any.whl.metadata
+     - 2.3 kB ? 0:00:00
+Requirement already satisfied: jsonschema>=2.6 in /usr/lib/python3/dist-packages (from nbformat->jupytext<2,>1.13.8->mkdocs-jupyter) (4.10.3)
+Requirement already satisfied: attrs>=17.4.0 in /usr/lib/python3/dist-packages (from jsonschema>=2.6->nbformat->jupytext<2,>1.13.8->mkdocs-jupyter) (23.2.0)
+Requirement already satisfied: pyrsistent!=0.17.0,!=0.17.1,!=0.17.2,>=0.14.0 in /usr/lib/python3/dist-packages (from jsonschema>=2.6->nbformat->jupytext<2,>1.13.8->mkdocs-jupyter) (0.20.0)
+Collecting soupsieve>1.2 (from beautifulsoup4->nbconvert<8,>=7.2.9->mkdocs-jupyter)
+  Downloading soupsieve-2.7-py3-none-any.whl.metadata
+     - 4.6 kB ? 0:00:00
+Requirement already satisfied: typing-extensions>=4.0.0 in /usr/lib/python3/dist-packages (from beautifulsoup4->nbconvert<8,>=7.2.9->mkdocs-jupyter) (4.10.0)
+Collecting executing>=1.2.0 (from stack_data->ipython>=7.23.1->ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading executing-2.2.0-py2.py3-none-any.whl.metadata
+     - 8.9 kB ? 0:00:00
+Collecting asttokens>=2.1.0 (from stack_data->ipython>=7.23.1->ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading asttokens-3.0.0-py3-none-any.whl.metadata
+     - 4.7 kB ? 0:00:00
+Collecting pure-eval (from stack_data->ipython>=7.23.1->ipykernel<7.0.0,>6.0.0->mkdocs-jupyter)
+  Downloading pure_eval-0.2.3-py3-none-any.whl.metadata
+     - 6.3 kB ? 0:00:00
+Downloading mkdocs-1.6.1-py3-none-any.whl
+   - 3.9 MB 208.8 MB/s 0:00:00
+Downloading mkdocs_material-9.6.17-py3-none-any.whl
+   - 9.2 MB 131.6 MB/s 0:00:00
+Downloading pymdown_extensions-10.16.1-py3-none-any.whl
+   - 266.2 kB 217.7 MB/s 0:00:00
+Downloading backrefs-5.9-py312-none-any.whl
+   - 397.9 kB 242.9 MB/s 0:00:00
+Downloading markdown-3.8.2-py3-none-any.whl
+   - 106.8 kB 175.4 MB/s 0:00:00
+Downloading mkdocs_material_extensions-1.3.1-py3-none-any.whl
+   - 8.7 kB ? 0:00:00
+Downloading paginate-0.5.7-py2.py3-none-any.whl
+   - 13.7 kB ? 0:00:00
+Downloading mkdocs_git_revision_date_plugin-0.3.2-py3-none-any.whl
+   - 4.2 kB ? 0:00:00
+Downloading mkdocs_git_revision_date_localized_plugin-1.4.7-py3-none-any.whl
+   - 25.4 kB 154.1 MB/s 0:00:00
+Downloading mkdocs_jupyter-0.25.1-py3-none-any.whl
+   - 1.5 MB 232.4 MB/s 0:00:00
+Downloading ipykernel-6.30.1-py3-none-any.whl
+   - 117.5 kB 206.5 MB/s 0:00:00
+Downloading jupytext-1.17.2-py3-none-any.whl
+   - 164.4 kB 211.3 MB/s 0:00:00
+Downloading nbconvert-7.16.6-py3-none-any.whl
+   - 258.5 kB 218.0 MB/s 0:00:00
+Downloading mistune-3.1.3-py3-none-any.whl
+   - 53.4 kB 229.6 MB/s 0:00:00
+Downloading mkdocstrings-0.30.0-py3-none-any.whl
+   - 36.6 kB 164.7 MB/s 0:00:00
+Downloading mkdocstrings_python_legacy-0.2.7-py3-none-any.whl
+   - 29.3 kB 161.6 MB/s 0:00:00
+Downloading bleach-6.2.0-py3-none-any.whl
+   - 163.4 kB 174.8 MB/s 0:00:00
+Downloading tinycss2-1.4.0-py3-none-any.whl
+   - 26.6 kB 168.6 MB/s 0:00:00
+Downloading comm-0.2.3-py3-none-any.whl
+   - 7.3 kB ? 0:00:00
+Downloading debugpy-1.8.16-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+   - 4.2 MB 217.4 MB/s 0:00:00
+Downloading ghp_import-2.1.0-py3-none-any.whl
+   - 11.0 kB ? 0:00:00
+Downloading gitpython-3.1.45-py3-none-any.whl
+   - 208.2 kB 173.2 MB/s 0:00:00
+Downloading gitdb-4.0.12-py3-none-any.whl
+   - 62.8 kB 256.2 MB/s 0:00:00
+Downloading smmap-5.0.2-py3-none-any.whl
+   - 24.3 kB 167.5 MB/s 0:00:00
+Downloading ipython-9.4.0-py3-none-any.whl
+   - 611.0 kB 261.6 MB/s 0:00:00
+Downloading prompt_toolkit-3.0.51-py3-none-any.whl
+   - 387.8 kB 201.8 MB/s 0:00:00
+Downloading jedi-0.19.2-py2.py3-none-any.whl
+   - 1.6 MB 246.1 MB/s 0:00:00
+Downloading parso-0.8.4-py2.py3-none-any.whl
+   - 103.7 kB 216.1 MB/s 0:00:00
+Downloading jupyter_client-8.6.3-py3-none-any.whl
+   - 106.1 kB 219.6 MB/s 0:00:00
+Downloading jupyter_core-5.8.1-py3-none-any.whl
+   - 28.9 kB 193.9 MB/s 0:00:00
+Downloading matplotlib_inline-0.1.7-py3-none-any.whl
+   - 9.9 kB ? 0:00:00
+Downloading mergedeep-1.3.4-py3-none-any.whl
+   - 6.4 kB ? 0:00:00
+Downloading mkdocs_autorefs-1.4.2-py3-none-any.whl
+   - 25.0 kB 165.8 MB/s 0:00:00
+Downloading mkdocs_get_deps-0.2.0-py3-none-any.whl
+   - 9.5 kB ? 0:00:00
+Downloading nbclient-0.10.2-py3-none-any.whl
+   - 25.4 kB 152.5 MB/s 0:00:00
+Downloading nbformat-5.10.4-py3-none-any.whl
+   - 78.5 kB 229.2 MB/s 0:00:00
+Downloading fastjsonschema-2.21.2-py3-none-any.whl
+   - 24.0 kB 148.3 MB/s 0:00:00
+Downloading nest_asyncio-1.6.0-py3-none-any.whl
+   - 5.2 kB ? 0:00:00
+Downloading pandocfilters-1.5.1-py2.py3-none-any.whl
+   - 8.7 kB ? 0:00:00
+Downloading pathspec-0.12.1-py3-none-any.whl
+   - 31.2 kB 179.8 MB/s 0:00:00
+Downloading psutil-7.0.0-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+   - 278.0 kB 183.0 MB/s 0:00:00
+Downloading pytkdocs-0.16.5-py3-none-any.whl
+   - 38.8 kB 174.3 MB/s 0:00:00
+Downloading pytz-2025.2-py2.py3-none-any.whl
+   - 509.2 kB 243.8 MB/s 0:00:00
+Downloading pyyaml_env_tag-1.1-py3-none-any.whl
+   - 4.7 kB ? 0:00:00
+Downloading pyzmq-27.0.2-cp312-abi3-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl
+   - 840.6 kB 255.4 MB/s 0:00:00
+Downloading tornado-6.5.2-cp39-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+   - 443.9 kB 264.9 MB/s 0:00:00
+Downloading traitlets-5.14.3-py3-none-any.whl
+   - 85.4 kB 196.5 MB/s 0:00:00
+Downloading watchdog-6.0.0-py3-none-manylinux2014_x86_64.whl
+   - 79.1 kB 233.3 MB/s 0:00:00
+Downloading webencodings-0.5.1-py2.py3-none-any.whl
+   - 11.8 kB ? 0:00:00
+Downloading beautifulsoup4-4.13.4-py3-none-any.whl
+   - 187.3 kB 239.7 MB/s 0:00:00
+Downloading soupsieve-2.7-py3-none-any.whl
+   - 36.7 kB 174.9 MB/s 0:00:00
+Downloading decorator-5.2.1-py3-none-any.whl
+   - 9.2 kB ? 0:00:00
+Downloading defusedxml-0.7.1-py2.py3-none-any.whl
+   - 25.6 kB 170.4 MB/s 0:00:00
+Downloading ipython_pygments_lexers-1.1.1-py3-none-any.whl
+   - 8.1 kB ? 0:00:00
+Downloading jupyterlab_pygments-0.3.0-py3-none-any.whl
+   - 15.9 kB ? 0:00:00
+Downloading mdit_py_plugins-0.5.0-py3-none-any.whl
+   - 57.2 kB 254.3 MB/s 0:00:00
+Downloading stack_data-0.6.3-py3-none-any.whl
+   - 24.5 kB 89.8 MB/s 0:00:00
+Downloading asttokens-3.0.0-py3-none-any.whl
+   - 26.9 kB 136.0 MB/s 0:00:00
+Downloading executing-2.2.0-py2.py3-none-any.whl
+   - 26.7 kB 172.2 MB/s 0:00:00
+Downloading pure_eval-0.2.3-py3-none-any.whl
+   - 11.8 kB ? 0:00:00
+Downloading wcwidth-0.2.13-py2.py3-none-any.whl
+   - 34.2 kB 210.6 MB/s 0:00:00
+Installing collected packages: webencodings, wcwidth, pytz, pure-eval, paginate, fastjsonschema, watchdog, traitlets, tornado, tinycss2, soupsieve, smmap, pyzmq, pyyaml-env-tag, pytkdocs, psutil, prompt_toolkit, pathspec, parso, pandocfilters, nest-asyncio, mkdocs-material-extensions, mistune, mergedeep, markdown, jupyterlab-pygments, ipython-pygments-lexers, ghp-import, executing, defusedxml, decorator, debugpy, comm, bleach, backrefs, asttokens, stack_data, pymdown-extensions, mkdocs-get-deps, mdit-py-plugins, matplotlib-inline, jupyter-core, jedi, gitdb, beautifulsoup4, nbformat, mkdocs, jupyter-client, ipython, GitPython, nbclient, mkdocs-material, mkdocs-git-revision-date-plugin, mkdocs-git-revision-date-localized-plugin, mkdocs-autorefs, jupytext, ipykernel, nbconvert, mkdocstrings, mkdocstrings-python-legacy, mkdocs-jupyter
+
+Successfully installed GitPython-3.1.45 asttokens-3.0.0 backrefs-5.9 beautifulsoup4-4.13.4 bleach-6.2.0 comm-0.2.3 debugpy-1.8.16 decorator-5.2.1 defusedxml-0.7.1 executing-2.2.0 fastjsonschema-2.21.2 ghp-import-2.1.0 gitdb-4.0.12 ipykernel-6.30.1 ipython-9.4.0 ipython-pygments-lexers-1.1.1 jedi-0.19.2 jupyter-client-8.6.3 jupyter-core-5.8.1 jupyterlab-pygments-0.3.0 jupytext-1.17.2 markdown-3.8.2 matplotlib-inline-0.1.7 mdit-py-plugins-0.5.0 mergedeep-1.3.4 mistune-3.1.3 mkdocs-1.6.1 mkdocs-autorefs-1.4.2 mkdocs-get-deps-0.2.0 mkdocs-git-revision-date-localized-plugin-1.4.7 mkdocs-git-revision-date-plugin-0.3.2 mkdocs-jupyter-0.25.1 mkdocs-material-9.6.17 mkdocs-material-extensions-1.3.1 mkdocstrings-0.30.0 mkdocstrings-python-legacy-0.2.7 nbclient-0.10.2 nbconvert-7.16.6 nbformat-5.10.4 nest-asyncio-1.6.0 paginate-0.5.7 pandocfilters-1.5.1 parso-0.8.4 pathspec-0.12.1 prompt_toolkit-3.0.51 psutil-7.0.0 pure-eval-0.2.3 pymdown-extensions-10.16.1 pytkdocs-0.16.5 pytz-2025.2 pyyaml-env-tag-1.1 pyzmq-27.0.2 smmap-5.0.2 soupsieve-2.7 stack_data-0.6.3 tinycss2-1.4.0 tornado-6.5.2 traitlets-5.14.3 watchdog-6.0.0 wcwidth-0.2.13 webencodings-0.5.1
