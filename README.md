@@ -136,73 +136,48 @@ Planned activities...
 
 ````
 
-**Example Excel file**: Any `.xlsx` file with tabular data will be automatically formatted as tables in your report.
-
 ## Command Line Options
 
 ```bash
-autorpt --help
+# Generate Word document from content.md and budget.xlsx
+auto
 
-# Basic report generation with auto-discovery
-autorpt --auto-content               # Auto-discover files in reports/
-autorpt --auto-content --content-folder "data"  # Use custom folder
+# Generate PDF from content.md using Typst
+auto --typst
 
-# Traditional single-file approach
-autorpt --input budget.xlsx --output report.docx --verbose
+# Generate both Word document and PDF
+auto --pdf
 
-# PDF generation
-autorpt --pdf                     # Generate report + PDF
-autorpt --pdf-only                # Convert latest report to PDF
-autorpt --pdf-all                 # Convert all reports to PDF
-
-# Advanced content mixing
-autorpt --markdown notes.md       # Add specific markdown file
-autorpt --excel data.xlsx         # Add specific Excel file
-autorpt --mixed file1.md data.xlsx  # Add multiple specific files
+# Enable verbose output
+auto --verbose
+auto --typst --verbose
 ````
 
-**Key Options**
+**How it works:**
 
-- `--auto-content`: Auto-discover and combine all .md and .xlsx files from content folder
-- `--content-folder`: Specify which folder to scan (default: reports)
-- `--input, -i`: Input Excel file (default: budget.xlsx)
-- `--output, -o`: Output Word document filename
-- `--markdown, -m`: Add specific markdown file to report
-- `--excel, -e`: Add specific Excel file as table
-- `--mixed`: Add multiple specific files (markdown and/or Excel)
-- `--pdf, -p`: Also convert the report to PDF
-- `--pdf-only`: Convert most recent report to PDF (no new generation)
-- `--pdf-all`: Convert all Word reports to PDF
-- `--verbose, -v`: Enable verbose output
+- **`auto`**: Reads `reports/content.md` and `reports/budget.xlsx`, inserts the budget table at the placeholder, and generates a Word document
+- **`auto --typst`**: Converts `content.md` to Typst format and compiles to PDF using the `report.typ` template
+- **`auto --pdf`**: Generates both Word and PDF formats
+- **`auto --verbose`**: Shows detailed output during generation
 
-## PDF Conversion
+## Requirements
 
-autorpt includes built-in PDF conversion capabilities. See the `pdf/` folder for:
+- **Python 3.9+**
+- **python-docx**: For Word document generation
+- **pandas + openpyxl**: For reading Excel budget files
+- **Typst** (optional, for PDF generation): https://github.com/typst/typst
 
-- Complete PDF documentation (`pdf/PDF_README.md`)
-- Helper scripts for easy PDF operations
-- Simple command aliases setup
+Install Typst for PDF support:
 
-Quick PDF usage:
-
-```bash
-# Built-in commands
-autorpt --pdf                     # Generate new report + PDF
-autorpt --pdf-only                # Convert latest report to PDF
-
-# Helper scripts (from pdf/ folder)
-.\pdf\setup-aliases.ps1           # Set up simple aliases
-pdf-latest                        # Then use: convert latest to PDF
-pdf-new                           # Generate new report + PDF
-```
+- macOS: `brew install typst`
+- Linux: Follow instructions at https://github.com/typst/typst
+- Windows: Download from https://github.com/typst/typst/releases
 
 ## Output
 
 The package generates:
 
-- Professional Word document in the `reports/` folder using sample or user added content.md and budget.xlsx files.
-- Automatic integration of all markdown content as formatted sections.
-- Excel data converted to professional tables with proper formatting into the Word document.
-- Optional PDF conversion of reports.
-- Budget comparison charts (when budget data is included).
-- Summary statistics and insights from your budget data.
+- **Word Document** (`test_report_YYYY-MM-DD.docx`): Professional formatted report with budget table
+- **PDF Document** (`report_YYYY-MM-DD.pdf`): Clean PDF version using Typst template
+- Both formats include formatted budget tables with proper alignment and styling
+- Reports are created in the `reports/` folder
