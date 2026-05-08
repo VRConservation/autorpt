@@ -1,8 +1,3 @@
----
-title: Monthly Report
-date: May 08, 2026
----
-
 # Monthly Report
 
 # Summary

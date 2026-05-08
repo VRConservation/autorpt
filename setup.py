@@ -58,6 +58,7 @@ setup(
     entry_points={
         'console_scripts': [
             'autorpt=autorpt.autorpt:main',
+            'auto=autorpt.autorpt:main',
         ],
     },
 )
