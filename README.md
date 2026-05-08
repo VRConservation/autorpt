@@ -6,7 +6,7 @@
 **autorpt is an automated word and pdf report generator using Excel and Markdown files**
 
 - User works from a folder with two files in the reports folder of this repo: [content.md](https://github.com/VRConservation/autorpt/blob/main/reports/content.md) and [budget.xlsx](https://github.com/VRConservation/autorpt/blob/main/reports/budget.xlsx). The two files can be downloaded at the links provided and copied to a folder on your local drive.
-- Copy and adapt the files or add your own files to generate the reports. 
+- Copy and adapt the files or add your own files to generate the reports.
 - See basic usage section below for how to set it up. Videos coming soon.
 - Documentation: https://VRConservation.github.io/autorpt.
 
@@ -31,72 +31,100 @@
 pip install autorpt
 ```
 
-### Basic Usage (Recommended: Folder-Based Workflow)
+### Basic Usage
 
 1. **Prepare your content in the `reports/` folder**:
-
-    - Copy or edit the provided example files:
+    - Edit the provided example files:
         - `reports/budget.xlsx` (your budget data)
-        - `reports/content.md` (custom content sections)
-    - Or add your own `.md` (markdown) and `.xlsx` (Excel) files to the `reports/` folder.
+        - `reports/content.md` (report content with YAML frontmatter)
 
-2. **Generate a report from all content in the folder**:
+2. **Generate a Word document report**:
 
     ```bash
-    # Auto-discover and combine all .md and .xlsx files in reports/
-    autorpt --auto-content
+    auto
     ```
 
-    - This will create a Word document in the `reports/` folder using all detected files.
+    - This creates a Word document (`test_report_YYYY-MM-DD.docx`) in the `reports/` folder
+    - Content is read from `content.md` with budget table inserted at the `[insert budget from budget.xlsx here]` placeholder
 
-3. **Convert the generated Word report to PDF (optional)**:
+3. **Generate a PDF report** (requires [Typst](https://github.com/typst/typst)):
 
     ```bash
-    # Convert the latest report in reports/ to PDF
-    autorpt --pdf-only
+    auto --typst
+    ```
+
+    - This creates a PDF (`report_YYYY-MM-DD.pdf`) in the `reports/` folder
+    - Uses `report.typ` Typst template for professional PDF formatting
+
+4. **Generate both Word and PDF**:
+
+    ```bash
+    auto --pdf
     ```
 
 ---
-
-### Advanced Usage (Custom Files)
-
-You can still specify custom files if needed:
-
-```bash
-# Specify input/output files
-autorpt --input my_budget.xlsx --output custom_report.docx
-```
 
 ### File Structure
 
 Your project directory should contain:
 
 ```
-your_project/
-├── reports/             # Content folder for your files
-│   ├── budget.xlsx      # Your budget data (example provided)
-│   ├── content.md       # Custom content sections (example provided)
-│   ├── your_data.xlsx   # Any additional Excel files
-│   ├── notes.md         # Any additional markdown files
-│   └── generated_reports.docx  # Auto-generated reports
-└── (other project files)
+autorpt/
+├── reports/                         # Content folder for your report files
+│   ├── budget.xlsx                  # Your budget data
+│   ├── content.md                   # Report content with YAML frontmatter
+│   ├── report.typ                   # Typst template for PDF (auto-generated)
+│   ├── test_report_YYYY-MM-DD.docx  # Generated Word documents
+│   └── report_YYYY-MM-DD.pdf        # Generated PDF documents
+├── autorpt/
+│   ├── __init__.py
+│   └── autorpt.py                   # Main script
+└── setup.py
 ```
 
-### Customizing Content
+### Content Format
 
-Add your content files to the `reports/` folder:
-
-**Example markdown file (`reports/project_notes.md`)**:
+**`reports/content.md`** format:
 
 ```markdown
+---
+title: Monthly Report
+date: May 08, 2026
+---
+
+# Monthly Report
+
 # Summary
 
-Your custom summary content here...
+Your summary content here...
+
+# Budget
+
+The current budget is shown below
+
+[insert budget from budget.xlsx here]
+
+## Budget Comments
+
+Additional notes about budget...
 
 # Deliverables Progress
 
-- Custom deliverable 1
-- Custom deliverable 2
+Progress details...
+
+- Item 1
+- Item 2
+
+# Challenges
+
+Current challenges...
+
+# Next Period Activities
+
+Planned activities...
+```
+
+The `[insert budget from budget.xlsx here]` placeholder will be automatically replaced with a formatted budget table in both Word and PDF formats.
 
 # Challenges
 
@@ -105,7 +133,8 @@ Current project challenges...
 # Next Period Activities
 
 Planned activities...
-```
+
+````
 
 **Example Excel file**: Any `.xlsx` file with tabular data will be automatically formatted as tables in your report.
 
@@ -130,7 +159,7 @@ autorpt --pdf-all                 # Convert all reports to PDF
 autorpt --markdown notes.md       # Add specific markdown file
 autorpt --excel data.xlsx         # Add specific Excel file
 autorpt --mixed file1.md data.xlsx  # Add multiple specific files
-```
+````
 
 **Key Options**
 
@@ -177,4 +206,3 @@ The package generates:
 - Optional PDF conversion of reports.
 - Budget comparison charts (when budget data is included).
 - Summary statistics and insights from your budget data.
-
