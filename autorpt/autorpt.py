@@ -215,7 +215,7 @@ def generate_report_from_content():
                 add_markdown_to_document(doc, content, budget_df)
     
     # Save document
-    output_file = reports_dir / f"test_report_{datetime.now().strftime('%Y-%m-%d')}.docx"
+    output_file = reports_dir / f"report_{datetime.now().strftime('%Y-%m-%d')}.docx"
     doc.save(str(output_file))
     print(f"✅ Report generated: {output_file}")
     return True
@@ -487,7 +487,7 @@ def generate_pdf_with_typst():
                 add_markdown_to_document(doc, content, budget_df)
     
     # Save document
-    output_file = reports_dir / f"test_report_{datetime.now().strftime('%Y-%m-%d')}.docx"
+    output_file = reports_dir / f"report_{datetime.now().strftime('%Y-%m-%d')}.docx"
     doc.save(str(output_file))
     print(f"✅ Report generated: {output_file}")
     return True
@@ -502,13 +502,13 @@ def main():
 Examples:
   auto                          # Generate Word report (.docx)
   auto --typst                  # Generate PDF report using Typst
-  auto --pdf                    # Generate both Word and PDF
+  auto --all                    # Generate both Word and PDF
         """)
     
     parser.add_argument('--typst', action='store_true',
                         help='Generate PDF using Typst instead of .docx')
-    parser.add_argument('--pdf', action='store_true',
-                        help='Generate both .docx and PDF (Typst)')
+    parser.add_argument('--all', action='store_true',
+                        help='Generate both Word and PDF (Typst) reports')
     parser.add_argument('--verbose', '-v', action='store_true',
                         help='Enable verbose output')
     
@@ -517,17 +517,7 @@ Examples:
     if args.verbose:
         print("🔧 Verbose mode enabled")
     
-    # If typst or pdf flags are set, use typst for PDF generation
-    if args.typst:
-        print("🚀 Generating PDF report with Typst...")
-        success = generate_pdf_with_typst()
-        if success:
-            print("\n✅ PDF generation completed successfully!")
-            return 0
-        else:
-            print("\n❌ PDF generation failed")
-            return 1
-    elif args.pdf:
+    if getattr(args, 'all'):
         print("🚀 Generating Word and PDF reports...")
         docx_success = generate_report_from_content()
         pdf_success = generate_pdf_with_typst()
@@ -536,6 +526,15 @@ Examples:
             return 0
         else:
             print("\n❌ Some reports failed to generate")
+            return 1
+    elif args.typst:
+        print("🚀 Generating PDF report with Typst...")
+        success = generate_pdf_with_typst()
+        if success:
+            print("\n✅ PDF generation completed successfully!")
+            return 0
+        else:
+            print("\n❌ PDF generation failed")
             return 1
     else:
         # Default: generate Word report

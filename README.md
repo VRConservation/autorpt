@@ -44,7 +44,7 @@ pip install autorpt
     auto
     ```
 
-    - This creates a Word document (`test_report_YYYY-MM-DD.docx`) in the `reports/` folder
+    - This creates a Word document (`report_YYYY-MM-DD.docx`) in the `reports/` folder
     - Content is read from `content.md` with budget table inserted at the `[insert budget from budget.xlsx here]` placeholder
 
 3. **Generate a PDF report** (requires [Typst](https://github.com/typst/typst)):
@@ -59,7 +59,7 @@ pip install autorpt
 4. **Generate both Word and PDF**:
 
     ```bash
-    auto --pdf
+    auto --all
     ```
 
 ---
@@ -74,7 +74,7 @@ autorpt/
 │   ├── budget.xlsx                  # Your budget data
 │   ├── content.md                   # Report content with YAML frontmatter
 │   ├── report.typ                   # Typst template for PDF (auto-generated)
-│   ├── test_report_YYYY-MM-DD.docx  # Generated Word documents
+│   ├── report_YYYY-MM-DD.docx  # Generated Word documents
 │   └── report_YYYY-MM-DD.pdf        # Generated PDF documents
 ├── autorpt/
 │   ├── __init__.py
@@ -145,8 +145,8 @@ auto
 # Generate PDF from content.md using Typst
 auto --typst
 
-# Generate both Word document and PDF
-auto --pdf
+# Generate both Word and PDF
+auto --all
 
 # Enable verbose output
 auto --verbose
@@ -157,7 +157,7 @@ auto --typst --verbose
 
 - **`auto`**: Reads `reports/content.md` and `reports/budget.xlsx`, inserts the budget table at the placeholder, and generates a Word document
 - **`auto --typst`**: Converts `content.md` to Typst format and compiles to PDF using the `report.typ` template
-- **`auto --pdf`**: Generates both Word and PDF formats
+- **`auto --all`**: Generates both Word and PDF formats
 - **`auto --verbose`**: Shows detailed output during generation
 
 ## Requirements
@@ -177,7 +177,7 @@ Install Typst for PDF support:
 
 The package generates:
 
-- **Word Document** (`test_report_YYYY-MM-DD.docx`): Professional formatted report with budget table
+- **Word Document** (`report_YYYY-MM-DD.docx`): Professional formatted report with budget table
 - **PDF Document** (`report_YYYY-MM-DD.pdf`): Clean PDF version using Typst template
 - Both formats include formatted budget tables with proper alignment and styling
 - Reports are created in the `reports/` folder

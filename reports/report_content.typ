@@ -3,6 +3,13 @@
 = Summary
 
 Overall the progress of the project is as planned.
+:::{mermaid}
+graph LR;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+:::
 = Budget
 
 The current budget is shown below
@@ -13,10 +20,12 @@ The current budget is shown below
 
 == Budget Comments
 
+We can see that the project is currently under budget and on track. One notable area is the Materials category where we are approaching the allocated amount.
 = Deliverables Progress
 
 Progress on key project deliverables remains on track with established timelines.
 - Data collection phase completed successfully
+- We shit the brick on wall hangings
 - Analysis framework implemented and tested
 - Initial report drafts under review
 - Stakeholder feedback sessions scheduled
