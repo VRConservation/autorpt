@@ -53,7 +53,7 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/VRConservation/autorpt',
-    version='0.1.3',
+    version='1.0.0',
     zip_safe=False,
     entry_points={
         'console_scripts': [
