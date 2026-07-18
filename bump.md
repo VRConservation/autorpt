@@ -1,6 +1,3 @@
-# Install bump2version
-pip install bump2version
-
 # Dry run to see what would change (safe)
 bump2version --dry-run --verbose patch
 
