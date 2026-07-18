@@ -595,6 +595,28 @@ function getFormatBadge(format) {
     return badges[format] || 'secondary';
 }
 
+// Dark mode toggle
+function toggleTheme() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('autorpt_theme', next);
+    const icon = document.getElementById('themeIcon');
+    icon.className = next === 'dark' ? 'bi bi-sun' : 'bi bi-moon';
+}
+
+(function initTheme() {
+    const saved = localStorage.getItem('autorpt_theme');
+    if (saved === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.addEventListener('DOMContentLoaded', function() {
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = 'bi bi-sun';
+        });
+    }
+})();
+
 // Toast notification
 function showToast(message, type = 'info') {
     const toastContainer = document.createElement('div');
