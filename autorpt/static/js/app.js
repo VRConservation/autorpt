@@ -3,7 +3,6 @@ let currentSections = [];
 let currentEditor = 'wysiwyg';
 let snippets = [];
 let history = [];
-let budgetData = [];
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -12,157 +11,90 @@ document.addEventListener('DOMContentLoaded', function() {
     loadExcelFiles();
     loadSnippets();
     loadHistory();
-    fetchVersion();
-    initResizeHandle();
-
-    if (typeof mermaid !== 'undefined') {
-        mermaid.initialize({ startOnLoad: false, theme: 'default', securityLevel: 'loose' });
-    }
-
-    // Restore snippets collapsed state
-    const snippetsOpen = localStorage.getItem('autorpt_snippetsOpen');
-    if (snippetsOpen === '0') {
-        document.getElementById('snippetsBody').classList.add('collapsed');
-        document.getElementById('snippetsChevron').style.transform = 'rotate(-90deg)';
-    }
-
+    loadVersion();
+    initializePanelResize();
+    
     // Auto-save every 30 seconds
     setInterval(autoSave, 30000);
-
+    
     // Update preview on content change
     document.getElementById('contentEditor').addEventListener('input', updatePreview);
     document.getElementById('contentMarkdown').addEventListener('input', updatePreview);
-
-    // Tab switching: toggle editorCard / budgetCard / previewCard in main panel
-    var tabReport = document.querySelector('[data-bs-target="#tabReport"]');
-    var tabBudget = document.querySelector('[data-bs-target="#tabBudget"]');
-    var tabPreview = document.querySelector('[data-bs-target="#tabPreview"]');
-
-    if (tabReport) {
-        tabReport.addEventListener('shown.bs.tab', function() {
-            document.getElementById('editorCard').classList.remove('d-none');
-            document.getElementById('budgetCard').classList.add('d-none');
-            document.getElementById('previewCard').classList.add('d-none');
-            document.getElementById('basicsCard').classList.remove('d-none');
-            document.getElementById('snippetsCard').classList.remove('d-none');
-        });
-    }
-    if (tabBudget) {
-        tabBudget.addEventListener('shown.bs.tab', function() {
-            document.getElementById('editorCard').classList.add('d-none');
-            document.getElementById('budgetCard').classList.remove('d-none');
-            document.getElementById('previewCard').classList.add('d-none');
-            document.getElementById('basicsCard').classList.remove('d-none');
-            document.getElementById('snippetsCard').classList.remove('d-none');
-        });
-    }
-    if (tabPreview) {
-        tabPreview.addEventListener('shown.bs.tab', function() {
-            document.getElementById('editorCard').classList.add('d-none');
-            document.getElementById('budgetCard').classList.add('d-none');
-            document.getElementById('previewCard').classList.remove('d-none');
-            document.getElementById('basicsCard').classList.add('d-none');
-            document.getElementById('snippetsCard').classList.add('d-none');
-            updatePreview();
-        });
-    }
-
+    
     // Set default date to today
     document.getElementById('metaDate').valueAsDate = new Date();
 });
 
-// Fetch version
-async function fetchVersion() {
-    try {
-        const response = await fetch('/api/version');
-        const data = await response.json();
-        const el = document.getElementById('appVersion');
-        if (el && data.version) el.textContent = 'v' + data.version;
-    } catch (error) {
-        console.error('Error fetching version:', error);
-    }
-}
+function initializePanelResize() {
+    const appLayout = document.getElementById('appLayout');
+    const leftPanel = document.getElementById('leftPanel');
+    const resizeHandle = document.getElementById('resizeHandle');
 
-// Toggle basics card body
-function toggleBasics() {
-    const body = document.getElementById('basicsBody');
-    const chevron = document.getElementById('basicsChevron');
-    if (body.style.display === 'none') {
-        body.style.display = '';
-        chevron.style.transform = '';
-    } else {
-        body.style.display = 'none';
-        chevron.style.transform = 'rotate(-90deg)';
-    }
-}
-
-// Toggle snippets card body
-function toggleSnippetsPanel() {
-    const body = document.getElementById('snippetsBody');
-    const chevron = document.getElementById('snippetsChevron');
-    if (body.classList.contains('collapsed')) {
-        body.classList.remove('collapsed');
-        chevron.style.transform = '';
-        localStorage.setItem('autorpt_snippetsOpen', '1');
-    } else {
-        body.classList.add('collapsed');
-        chevron.style.transform = 'rotate(-90deg)';
-        localStorage.setItem('autorpt_snippetsOpen', '0');
-    }
-}
-
-// Resizable left panel
-function initResizeHandle() {
-    const handle = document.getElementById('resizeHandle');
-    const panel = document.getElementById('leftPanel');
-    if (!handle || !panel) return;
-
-    const savedWidth = localStorage.getItem('autorpt_leftPanelWidth');
-    if (savedWidth !== null) {
-        panel.style.width = savedWidth;
+    if (!appLayout || !leftPanel || !resizeHandle) {
+        return;
     }
 
-    let startX, startWidth;
+    let isResizing = false;
 
-    function onMouseDown(e) {
-        startX = e.clientX;
-        startWidth = panel.offsetWidth;
-        handle.classList.add('dragging');
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
-        e.preventDefault();
-    }
-
-    function onMouseMove(e) {
-        const diff = e.clientX - startX;
-        const newWidth = Math.min(Math.max(startWidth + diff, 200), 600);
-        panel.style.width = newWidth + 'px';
-    }
-
-    function onMouseUp() {
-        handle.classList.remove('dragging');
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-        localStorage.setItem('autorpt_leftPanelWidth', panel.style.width);
-    }
-
-    handle.addEventListener('mousedown', onMouseDown);
-
-    handle.addEventListener('dblclick', function() {
-        if (panel.style.width === '0px') {
-            panel.style.width = '';
-        } else {
-            panel.style.width = '0px';
+    resizeHandle.addEventListener('mousedown', function(event) {
+        if (window.innerWidth <= 768) {
+            return;
         }
-        localStorage.setItem('autorpt_leftPanelWidth', panel.style.width);
+        isResizing = true;
+        event.preventDefault();
+        document.body.style.userSelect = 'none';
+    });
+
+    document.addEventListener('mousemove', function(event) {
+        if (!isResizing) {
+            return;
+        }
+
+        const layoutRect = appLayout.getBoundingClientRect();
+        const nextWidth = event.clientX - layoutRect.left;
+        const constrainedWidth = Math.max(260, Math.min(700, nextWidth));
+        appLayout.style.setProperty('--left-panel-width', `${constrainedWidth}px`);
+    });
+
+    document.addEventListener('mouseup', function() {
+        if (!isResizing) {
+            return;
+        }
+        isResizing = false;
+        document.body.style.userSelect = '';
     });
 }
 
-// Templates
+function toggleLeftPanel() {
+    const appLayout = document.getElementById('appLayout');
+    if (!appLayout) {
+        return;
+    }
+
+    appLayout.classList.toggle('panel-collapsed');
+}
+
+async function loadVersion() {
+    const versionElement = document.getElementById('appVersion');
+    if (!versionElement) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/version');
+        const data = await response.json();
+        versionElement.textContent = `v${data.version}`;
+    } catch (error) {
+        versionElement.textContent = '';
+    }
+}
+
+// Load available templates
 async function loadTemplates() {
     try {
         const response = await fetch('/api/templates');
         const data = await response.json();
+        
         const select = document.getElementById('templateSelect');
         data.templates.forEach(template => {
             const option = document.createElement('option');
@@ -176,9 +108,11 @@ async function loadTemplates() {
     }
 }
 
+// Load template sections
 function loadTemplate() {
     const select = document.getElementById('templateSelect');
     const option = select.options[select.selectedIndex];
+    
     if (option.value && option.dataset.sections) {
         currentSections = JSON.parse(option.dataset.sections);
         renderSections();
@@ -186,9 +120,11 @@ function loadTemplate() {
     }
 }
 
+// Render sections list
 function renderSections() {
     const container = document.getElementById('sectionsContainer');
     container.innerHTML = '';
+    
     currentSections.forEach((section, index) => {
         const div = document.createElement('div');
         div.className = 'section-item';
@@ -207,11 +143,14 @@ function renderSections() {
     });
 }
 
+// Add new section
 function addSection() {
     const sectionName = prompt('Enter section name:');
     if (sectionName) {
         currentSections.push(sectionName);
         renderSections();
+        
+        // Add section to editor
         const editor = document.getElementById('contentEditor');
         const heading = document.createElement('h2');
         heading.textContent = sectionName;
@@ -219,10 +158,12 @@ function addSection() {
         const para = document.createElement('p');
         para.innerHTML = '<br>';
         editor.appendChild(para);
+        
         updatePreview();
     }
 }
 
+// Remove section
 function removeSection(index) {
     if (confirm('Remove this section?')) {
         currentSections.splice(index, 1);
@@ -230,6 +171,7 @@ function removeSection(index) {
     }
 }
 
+// Jump to section
 function jumpToSection(index) {
     const editor = document.getElementById('contentEditor');
     const headings = editor.querySelectorAll('h1, h2, h3');
@@ -239,13 +181,17 @@ function jumpToSection(index) {
     }
 }
 
+// Toggle editor mode
 function toggleEditor(mode) {
     currentEditor = mode;
+    
     if (mode === 'markdown') {
         document.getElementById('editorMarkdown').style.display = 'block';
         document.getElementById('editorWYSIWYG').style.display = 'none';
         document.getElementById('btnMarkdown').classList.add('active');
         document.getElementById('btnWYSIWYG').classList.remove('active');
+        
+        // Convert HTML to markdown (simple conversion)
         const html = document.getElementById('contentEditor').innerHTML;
         document.getElementById('contentMarkdown').value = htmlToMarkdown(html);
     } else {
@@ -253,21 +199,21 @@ function toggleEditor(mode) {
         document.getElementById('editorWYSIWYG').style.display = 'block';
         document.getElementById('btnMarkdown').classList.remove('active');
         document.getElementById('btnWYSIWYG').classList.add('active');
+        
+        // Convert markdown to HTML
         const markdown = document.getElementById('contentMarkdown').value;
-        if (typeof marked !== 'undefined' && marked.parse) {
-            document.getElementById('contentEditor').innerHTML = marked.parse(markdown);
-        } else if (typeof marked === 'function') {
-            document.getElementById('contentEditor').innerHTML = marked(markdown);
-        }
+        document.getElementById('contentEditor').innerHTML = marked.parse(markdown);
     }
     updatePreview();
 }
 
+// Format text in editor
 function formatText(command) {
     document.execCommand(command, false, null);
     updatePreview();
 }
 
+// Insert list
 function insertList(type) {
     if (type === 'ul') {
         document.execCommand('insertUnorderedList', false, null);
@@ -280,46 +226,17 @@ function insertList(type) {
 // Update preview
 function updatePreview() {
     const preview = document.getElementById('preview');
-    if (!preview) return;
-
-    let html;
+    
     if (currentEditor === 'wysiwyg') {
-        html = document.getElementById('contentEditor').innerHTML;
+        const content = document.getElementById('contentEditor').innerHTML;
+        preview.innerHTML = content;
     } else {
         const markdown = document.getElementById('contentMarkdown').value;
-        if (typeof marked !== 'undefined' && marked.parse) {
-            html = marked.parse(markdown);
-        } else if (typeof marked === 'function') {
-            html = marked(markdown);
-        } else {
-            html = '<p>' + markdown.replace(/\n/g, '<br>') + '</p>';
-        }
-    }
-
-    preview.innerHTML = html;
-    renderMermaidIn(preview);
-}
-
-function renderMermaidIn(container) {
-    if (typeof mermaid === 'undefined' || !mermaid.run) return;
-
-    const codeBlocks = container.querySelectorAll('pre > code.language-mermaid');
-    codeBlocks.forEach(function(code) {
-        const pre = code.parentElement;
-        const div = document.createElement('div');
-        div.className = 'mermaid';
-        div.textContent = code.textContent;
-        pre.replaceWith(div);
-    });
-
-    const nodes = container.querySelectorAll('.mermaid');
-    if (nodes.length > 0) {
-        mermaid.run({ nodes: nodes }).catch(function(err) {
-            console.error('Mermaid render error:', err);
-        });
+        preview.innerHTML = marked.parse(markdown);
     }
 }
 
+// Simple HTML to Markdown conversion
 function htmlToMarkdown(html) {
     let text = html;
     text = text.replace(/<h1>(.*?)<\/h1>/gi, '# $1\n\n');
@@ -340,32 +257,20 @@ async function loadContent() {
     try {
         const response = await fetch('/api/load-content');
         const data = await response.json();
+        
         if (data.success) {
+            // Load metadata
             document.getElementById('metaTitle').value = data.metadata.title || '';
             document.getElementById('metaAuthor').value = data.metadata.author || '';
             document.getElementById('metaDate').value = data.metadata.date || '';
             document.getElementById('metaProject').value = data.metadata.project || '';
-
-            if (data.metadata.budget) {
-                try {
-                    budgetData = JSON.parse(data.metadata.budget);
-                    renderBudgetTable();
-                } catch (e) { budgetData = []; }
-            }
-            const commentsEl = document.getElementById('budgetComments');
-            if (commentsEl && data.metadata.budget_comments) {
-                commentsEl.value = data.metadata.budget_comments;
-            }
-
+            
+            // Load content
             if (data.content) {
                 if (currentEditor === 'markdown') {
                     document.getElementById('contentMarkdown').value = data.content;
                 } else {
-                    if (typeof marked !== 'undefined' && marked.parse) {
-                        document.getElementById('contentEditor').innerHTML = marked.parse(data.content);
-                    } else if (typeof marked === 'function') {
-                        document.getElementById('contentEditor').innerHTML = marked(data.content);
-                    }
+                    document.getElementById('contentEditor').innerHTML = marked.parse(data.content);
                 }
                 updatePreview();
             }
@@ -381,111 +286,65 @@ async function saveContent() {
         title: document.getElementById('metaTitle').value,
         author: document.getElementById('metaAuthor').value,
         date: document.getElementById('metaDate').value,
-        project: document.getElementById('metaProject').value,
-        budget: JSON.stringify(collectBudgetData()),
-        budget_comments: (document.getElementById('budgetComments') || {}).value || ''
+        project: document.getElementById('metaProject').value
     };
-
+    
     let content;
     if (currentEditor === 'markdown') {
         content = document.getElementById('contentMarkdown').value;
     } else {
         content = htmlToMarkdown(document.getElementById('contentEditor').innerHTML);
     }
-
+    
     try {
-        await fetch('/api/save-content', {
+        const response = await fetch('/api/save-content', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ metadata, content })
         });
+        
+        const data = await response.json();
+        if (data.success) {
+            showToast('Content saved successfully', 'success');
+        }
     } catch (error) {
         showToast('Error saving content', 'danger');
     }
 }
 
+// Auto-save
 function autoSave() {
     saveContent();
+    console.log('Auto-saved at', new Date().toLocaleTimeString());
 }
 
-// Generate report - accepts optional button element
-async function generateReport(format, btn) {
-    await saveContent();
-
-    const button = btn || (event && event.target);
-    let originalText = '';
-    if (button) {
-        originalText = button.innerHTML;
-        button.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-        button.disabled = true;
-    }
-
-    const metadata = {
-        title: document.getElementById('metaTitle').value,
-        author: document.getElementById('metaAuthor').value,
-        date: document.getElementById('metaDate').value,
-        project: document.getElementById('metaProject').value,
-        budget: JSON.stringify(collectBudgetData()),
-        budget_comments: (document.getElementById('budgetComments') || {}).value || ''
-    };
-
-    let content;
-    if (currentEditor === 'markdown') {
-        content = document.getElementById('contentMarkdown').value;
-    } else {
-        content = htmlToMarkdown(document.getElementById('contentEditor').innerHTML);
-    }
-
-    try {
-        const response = await fetch('/api/generate-report', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ format, metadata, content })
-        });
-
-        const data = await response.json();
-        if (data.success) {
-            showToast('Report generated: ' + data.filename, 'success');
-            if (format === 'pdf' || format === 'html') {
-                window.open(data.download_url, '_blank');
-            } else {
-                window.location.href = data.download_url;
-            }
-            loadHistory();
-        } else {
-            showToast('Error: ' + data.error, 'danger');
-        }
-    } catch (error) {
-        showToast('Error generating report', 'danger');
-    } finally {
-        if (button) {
-            button.innerHTML = originalText;
-            button.disabled = false;
-        }
-    }
-}
-
-// Excel
+// Upload Excel file
 async function uploadExcel() {
     const fileInput = document.getElementById('excelFile');
     const file = fileInput.files[0];
+    
     if (!file) return;
-
+    
     const formData = new FormData();
     formData.append('file', file);
-
+    
     try {
-        const response = await fetch('/api/upload-excel', { method: 'POST', body: formData });
+        const response = await fetch('/api/upload-excel', {
+            method: 'POST',
+            body: formData
+        });
+        
         const data = await response.json();
         if (data.success) {
             document.getElementById('excelPreview').innerHTML = `
                 <div class="alert alert-success p-2 mt-2">
                     <small><strong>${data.filename}</strong><br>
-                    ${data.rows} rows x ${data.columns.length} columns</small>
+                    ${data.rows} rows × ${data.columns.length} columns</small>
                 </div>
                 ${data.preview}
             `;
             loadExcelFiles();
+            showToast('Excel file uploaded', 'success');
         } else {
             showToast(data.error, 'danger');
         }
@@ -494,15 +353,17 @@ async function uploadExcel() {
     }
 }
 
+// Load Excel files list
 async function loadExcelFiles() {
     try {
         const response = await fetch('/api/list-excel-files');
         const data = await response.json();
+        
         const container = document.getElementById('excelFiles');
         if (data.files.length > 0) {
             container.innerHTML = '<small class="text-muted">Available files:</small><ul class="list-unstyled small mt-1">';
             data.files.forEach(file => {
-                container.innerHTML += '<li><i class="bi bi-file-earmark-excel text-success"></i> ' + file.filename + '</li>';
+                container.innerHTML += `<li><i class="bi bi-file-earmark-excel text-success"></i> ${file.filename}</li>`;
             });
             container.innerHTML += '</ul>';
         }
@@ -511,171 +372,105 @@ async function loadExcelFiles() {
     }
 }
 
-// Budget
-function addBudgetRow(item, budgeted, actual) {
-    budgetData.push({ item: item || '', budgeted: budgeted || '', actual: actual || '' });
-    renderBudgetTable();
-}
-
-function removeBudgetRow(index) {
-    budgetData.splice(index, 1);
-    renderBudgetTable();
-}
-
-function renderBudgetTable() {
-    const tbody = document.getElementById('budgetRows');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    budgetData.forEach((row, i) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td><input type="text" class="form-control form-control-sm" value="${row.item}" onchange="budgetData[${i}].item=this.value"></td>
-            <td><input type="number" class="form-control form-control-sm" value="${row.budgeted}" step="0.01" onchange="budgetData[${i}].budgeted=this.value"></td>
-            <td><input type="number" class="form-control form-control-sm" value="${row.actual}" step="0.01" onchange="budgetData[${i}].actual=this.value"></td>
-            <td><button class="btn btn-sm btn-link text-danger p-0" onclick="removeBudgetRow(${i})"><i class="bi bi-x"></i></button></td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-function collectBudgetData() {
-    const rows = document.querySelectorAll('#budgetRows tr');
-    const data = [];
-    rows.forEach((tr) => {
-        const inputs = tr.querySelectorAll('input');
-        if (inputs.length >= 3) {
-            data.push({ item: inputs[0].value, budgeted: inputs[1].value, actual: inputs[2].value });
+// Generate report
+async function generateReport(format) {
+    // Save first
+    await saveContent();
+    
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Generating...';
+    button.disabled = true;
+    
+    const metadata = {
+        title: document.getElementById('metaTitle').value,
+        author: document.getElementById('metaAuthor').value,
+        date: document.getElementById('metaDate').value,
+        project: document.getElementById('metaProject').value
+    };
+    
+    let content;
+    if (currentEditor === 'markdown') {
+        content = document.getElementById('contentMarkdown').value;
+    } else {
+        content = htmlToMarkdown(document.getElementById('contentEditor').innerHTML);
+    }
+    
+    try {
+        const response = await fetch('/api/generate-report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ format, metadata, content })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            showToast(`Report generated: ${data.filename}`, 'success');
+            
+            // Download file
+            window.location.href = data.download_url;
+            
+            loadHistory();
+        } else {
+            showToast(`Error: ${data.error}`, 'danger');
         }
-    });
-    return data;
+    } catch (error) {
+        showToast('Error generating report', 'danger');
+    } finally {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    }
 }
 
-function renderBudgetMarkdown(data, comments) {
-    if (!data || data.length === 0) return '';
-    let md = '| Item | Budgeted | Actual |\n|------|----------|--------|\n';
-    data.forEach(row => {
-        if (row.item) md += '| ' + row.item + ' | ' + (row.budgeted || '0') + ' | ' + (row.actual || '0') + ' |\n';
-    });
-    if (comments) md += '\n**Budget Comments:**\n\n' + comments + '\n';
-    return md;
-}
-
-// Snippets
+// Snippets functionality
 async function loadSnippets() {
     try {
         const response = await fetch('/api/snippets');
         const data = await response.json();
         snippets = data.snippets;
-        renderSnippetsPanel();
     } catch (error) {
         console.error('Error loading snippets:', error);
     }
 }
 
-function renderSnippetsPanel() {
-    const container = document.getElementById('snippetsPanelBody');
-    if (!container) return;
+function showSnippets() {
+    renderSnippets();
+    const modal = new bootstrap.Modal(document.getElementById('snippetsModal'));
+    modal.show();
+}
+
+function renderSnippets() {
+    const container = document.getElementById('snippetsList');
     if (snippets.length === 0) {
-        container.innerHTML = '<p class="text-muted small text-center mt-2 mb-0">No snippets yet.</p>';
+        container.innerHTML = '<p class="text-muted">No snippets saved yet.</p>';
         return;
     }
+    
     container.innerHTML = '';
     snippets.forEach(snippet => {
         const div = document.createElement('div');
-        div.className = 'snippet-card';
-        div.draggable = true;
-        div.dataset.snippetId = snippet.id;
-        div.dataset.content = snippet.content;
+        div.className = 'snippet-item';
         div.innerHTML = `
-            <div class="d-flex justify-content-between align-items-start">
-                <div class="snippet-title">${snippet.title}</div>
-                <div class="snippet-actions">
-                    <button class="btn btn-sm btn-link text-danger p-0 ms-1" onclick="event.stopPropagation(); deleteSnippet(${snippet.id})" title="Delete">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </div>
+            <div class="d-flex justify-content-between">
+                <strong>${snippet.title}</strong>
+                <button class="btn btn-sm btn-danger" onclick="deleteSnippet(${snippet.id})">
+                    <i class="bi bi-trash"></i>
+                </button>
             </div>
-            <div class="snippet-preview">${snippet.content.substring(0, 80)}${snippet.content.length > 80 ? '...' : ''}</div>
+            <small class="text-muted d-block mb-2">${new Date(snippet.created).toLocaleDateString()}</small>
+            <div>${snippet.content.substring(0, 100)}${snippet.content.length > 100 ? '...' : ''}</div>
         `;
-
-        div.addEventListener('click', function(e) {
-            if (e.target.closest('button')) return;
-            insertSnippet(snippet.content);
-        });
-
-        div.addEventListener('dragstart', function(e) {
-            e.dataTransfer.setData('text/plain', snippet.content);
-            e.dataTransfer.effectAllowed = 'copy';
-            div.classList.add('dragging');
-        });
-
-        div.addEventListener('dragend', function() {
-            div.classList.remove('dragging');
-        });
-
+        div.onclick = (e) => {
+            if (!e.target.closest('button')) {
+                insertSnippet(snippet.content);
+            }
+        };
         container.appendChild(div);
     });
-
-    initEditorDropZone();
-}
-
-function initEditorDropZone() {
-    const editor = document.getElementById('contentEditor');
-    if (!editor || editor.dataset.dropInit) return;
-    editor.dataset.dropInit = '1';
-
-    editor.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';
-        editor.classList.add('drag-over');
-    });
-
-    editor.addEventListener('dragleave', function() {
-        editor.classList.remove('drag-over');
-    });
-
-    editor.addEventListener('drop', function(e) {
-        e.preventDefault();
-        editor.classList.remove('drag-over');
-        const content = e.dataTransfer.getData('text/plain');
-        if (content) {
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                range.deleteContents();
-                const node = document.createTextNode(content);
-                range.insertNode(node);
-                range.setStartAfter(node);
-                range.collapse(true);
-                selection.removeAllRanges();
-                selection.addRange(range);
-            } else {
-                editor.innerHTML += '<p>' + content + '</p>';
-            }
-            updatePreview();
-        }
-    });
-
-    const textarea = document.getElementById('contentMarkdown');
-    if (textarea) {
-        textarea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'copy';
-        });
-        textarea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            const content = e.dataTransfer.getData('text/plain');
-            if (content) {
-                textarea.value += '\n\n' + content;
-                updatePreview();
-            }
-        });
-    }
 }
 
 function showNewSnippet() {
     document.getElementById('newSnippetForm').style.display = 'block';
-    document.getElementById('snippetTitle').focus();
 }
 
 function hideNewSnippet() {
@@ -687,21 +482,25 @@ function hideNewSnippet() {
 async function saveNewSnippet() {
     const title = document.getElementById('snippetTitle').value;
     const content = document.getElementById('snippetContent').value;
+    
     if (!title || !content) {
         alert('Please enter both title and content');
         return;
     }
+    
     try {
         const response = await fetch('/api/snippets', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title, content })
         });
+        
         const data = await response.json();
         if (data.success) {
             snippets = data.snippets;
-            renderSnippetsPanel();
+            renderSnippets();
             hideNewSnippet();
+            showToast('Snippet saved', 'success');
         }
     } catch (error) {
         showToast('Error saving snippet', 'danger');
@@ -710,12 +509,14 @@ async function saveNewSnippet() {
 
 async function deleteSnippet(id) {
     if (!confirm('Delete this snippet?')) return;
+    
     try {
-        const response = await fetch('/api/snippets/' + id, { method: 'DELETE' });
+        const response = await fetch(`/api/snippets/${id}`, { method: 'DELETE' });
         const data = await response.json();
         if (data.success) {
             snippets = data.snippets;
-            renderSnippetsPanel();
+            renderSnippets();
+            showToast('Snippet deleted', 'success');
         }
     } catch (error) {
         showToast('Error deleting snippet', 'danger');
@@ -723,34 +524,25 @@ async function deleteSnippet(id) {
 }
 
 function insertSnippet(content) {
+    const editor = document.getElementById('contentEditor');
     if (currentEditor === 'markdown') {
         const textarea = document.getElementById('contentMarkdown');
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        textarea.value = textarea.value.substring(0, start) + content + textarea.value.substring(end);
-        textarea.selectionStart = textarea.selectionEnd = start + content.length;
-        textarea.focus();
+        textarea.value += '\n\n' + content;
     } else {
-        const editor = document.getElementById('contentEditor');
         const selection = window.getSelection();
-        if (selection.rangeCount > 0 && editor.contains(selection.anchorNode)) {
+        if (selection.rangeCount > 0) {
             const range = selection.getRangeAt(0);
-            range.deleteContents();
             const node = document.createTextNode(content);
             range.insertNode(node);
-            range.setStartAfter(node);
-            range.collapse(true);
-            selection.removeAllRanges();
-            selection.addRange(range);
         } else {
             editor.innerHTML += '<p>' + content + '</p>';
         }
-        editor.focus();
     }
     updatePreview();
+    showToast('Snippet inserted', 'success');
 }
 
-// History
+// History functionality
 async function loadHistory() {
     try {
         const response = await fetch('/api/history');
@@ -763,7 +555,8 @@ async function loadHistory() {
 
 function showHistory() {
     renderHistory();
-    new bootstrap.Modal(document.getElementById('historyModal')).show();
+    const modal = new bootstrap.Modal(document.getElementById('historyModal'));
+    modal.show();
 }
 
 function renderHistory() {
@@ -772,6 +565,7 @@ function renderHistory() {
         container.innerHTML = '<p class="text-muted">No reports generated yet.</p>';
         return;
     }
+    
     container.innerHTML = '';
     history.forEach(item => {
         const div = document.createElement('div');
@@ -792,128 +586,19 @@ function renderHistory() {
 }
 
 function getFormatBadge(format) {
-    return { 'docx': 'primary', 'pdf': 'danger', 'html': 'info', 'md': 'secondary' }[format] || 'secondary';
+    const badges = {
+        'docx': 'primary',
+        'pdf': 'danger',
+        'html': 'info',
+        'md': 'secondary'
+    };
+    return badges[format] || 'secondary';
 }
 
-// Gallery
-async function showGallery() {
-    new bootstrap.Modal(document.getElementById('galleryModal')).show();
-    await loadGallery();
-}
-
-async function loadGallery() {
-    const container = document.getElementById('galleryList');
-    container.innerHTML = '<div class="col-12 text-center text-muted py-4"><div class="spinner-border spinner-border-sm"></div> Loading...</div>';
-    try {
-        const response = await fetch('/api/gallery');
-        const data = await response.json();
-        if (!data.reports || data.reports.length === 0) {
-            container.innerHTML = '<div class="col-12 text-center text-muted py-4">No saved reports yet.</div>';
-            return;
-        }
-        container.innerHTML = '';
-        data.reports.forEach(report => {
-            const col = document.createElement('div');
-            col.className = 'col-md-4 col-sm-6';
-            col.innerHTML = `
-                <div class="card h-100 gallery-card" style="cursor:pointer" onclick="loadSavedReport('${report.name}')">
-                    <div class="card-body">
-                        <h6 class="card-title mb-1">${report.title}</h6>
-                        <small class="text-muted d-block">${report.name}</small>
-                        ${report.project ? '<small class="text-muted d-block">' + report.project + '</small>' : ''}
-                        ${report.date ? '<small class="text-muted d-block">' + report.date + '</small>' : ''}
-                    </div>
-                    <div class="card-footer bg-transparent">
-                        <small class="text-muted">Modified: ${new Date(report.modified).toLocaleDateString()}</small>
-                    </div>
-                </div>
-            `;
-            container.appendChild(col);
-        });
-    } catch (error) {
-        container.innerHTML = '<div class="col-12 text-center text-danger py-4">Error loading reports.</div>';
-    }
-}
-
-async function loadSavedReport(name) {
-    try {
-        const response = await fetch('/api/load-saved/' + name);
-        const data = await response.json();
-        if (data.success) {
-            document.getElementById('metaTitle').value = data.metadata.title || '';
-            document.getElementById('metaAuthor').value = data.metadata.author || '';
-            document.getElementById('metaDate').value = data.metadata.date || '';
-            document.getElementById('metaProject').value = data.metadata.project || '';
-
-            if (data.metadata.budget) {
-                try {
-                    budgetData = JSON.parse(data.metadata.budget);
-                    renderBudgetTable();
-                } catch (e) { budgetData = []; }
-            }
-            const commentsEl = document.getElementById('budgetComments');
-            if (commentsEl && data.metadata.budget_comments) {
-                commentsEl.value = data.metadata.budget_comments;
-            }
-
-            if (data.content) {
-                if (currentEditor === 'markdown') {
-                    document.getElementById('contentMarkdown').value = data.content;
-                } else {
-                    if (typeof marked !== 'undefined' && marked.parse) {
-                        document.getElementById('contentEditor').innerHTML = marked.parse(data.content);
-                    } else if (typeof marked === 'function') {
-                        document.getElementById('contentEditor').innerHTML = marked(data.content);
-                    }
-                }
-                updatePreview();
-            }
-
-            bootstrap.Modal.getInstance(document.getElementById('galleryModal')).hide();
-        } else {
-            showToast(data.error, 'danger');
-        }
-    } catch (error) {
-        showToast('Error loading report', 'danger');
-    }
-}
-
-// Save As
-function showSaveAs() {
-    const title = document.getElementById('metaTitle').value;
-    document.getElementById('saveAsName').value = title ? title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : '';
-    new bootstrap.Modal(document.getElementById('saveAsModal')).show();
-}
-
-async function saveAs() {
-    const name = document.getElementById('saveAsName').value.trim();
-    if (!name) {
-        alert('Please enter a report name');
-        return;
-    }
-    await saveContent();
-    try {
-        const response = await fetch('/api/save-as', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name })
-        });
-        const data = await response.json();
-        if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('saveAsModal')).hide();
-        } else {
-            showToast(data.error, 'danger');
-        }
-    } catch (error) {
-        showToast('Error saving report', 'danger');
-    }
-}
-
-// Toast
-function showToast(message, type) {
-    type = type || 'info';
+// Toast notification
+function showToast(message, type = 'info') {
     const toastContainer = document.createElement('div');
-    toastContainer.className = 'toast align-items-center text-white bg-' + type + ' border-0';
+    toastContainer.className = `toast align-items-center text-white bg-${type} border-0`;
     toastContainer.setAttribute('role', 'alert');
     toastContainer.innerHTML = `
         <div class="d-flex">
@@ -921,8 +606,12 @@ function showToast(message, type) {
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
         </div>
     `;
+    
     document.body.appendChild(toastContainer);
     const toast = new bootstrap.Toast(toastContainer);
     toast.show();
-    setTimeout(function() { toastContainer.remove(); }, 5000);
+    
+    setTimeout(() => {
+        toastContainer.remove();
+    }, 5000);
 }
