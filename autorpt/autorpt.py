@@ -503,6 +503,8 @@ Examples:
   auto                          # Generate Word report (.docx)
   auto --typst                  # Generate PDF report using Typst
   auto --all                    # Generate both Word and PDF
+  auto start                    # Open web interface in browser
+  auto start --no-browser       # Start web server only
         """)
     
     parser.add_argument('--typst', action='store_true',
@@ -512,40 +514,65 @@ Examples:
     parser.add_argument('--verbose', '-v', action='store_true',
                         help='Enable verbose output')
     
+    subparsers = parser.add_subparsers(dest='command')
+    
+    start_parser = subparsers.add_parser('start', help='Launch web interface')
+    start_parser.add_argument('--no-browser', action='store_true',
+                              help='Start server without opening browser')
+    start_parser.add_argument('--port', type=int, default=8080,
+                              help='Port for web server (default: 8080)')
+    
     args = parser.parse_args()
     
     if args.verbose:
-        print("🔧 Verbose mode enabled")
+        print("Verbose mode enabled")
+    
+    if args.command == 'start':
+        try:
+            from .webapp import start_server
+            start_server(
+                host='127.0.0.1',
+                port=args.port,
+                debug=args.verbose,
+                open_browser=not args.no_browser
+            )
+            return 0
+        except ImportError:
+            print("Web interface not available. Install Flask: pip install flask")
+            return 1
+        except KeyboardInterrupt:
+            print("\n\nServer stopped")
+            return 0
     
     if getattr(args, 'all'):
-        print("🚀 Generating Word and PDF reports...")
+        print("Generating Word and PDF reports...")
         docx_success = generate_report_from_content()
         pdf_success = generate_pdf_with_typst()
         if docx_success and pdf_success:
-            print("\n✅ Report generation completed successfully!")
+            print("\nReport generation completed successfully!")
             return 0
         else:
-            print("\n❌ Some reports failed to generate")
+            print("\nSome reports failed to generate")
             return 1
     elif args.typst:
-        print("🚀 Generating PDF report with Typst...")
+        print("Generating PDF report with Typst...")
         success = generate_pdf_with_typst()
         if success:
-            print("\n✅ PDF generation completed successfully!")
+            print("\nPDF generation completed successfully!")
             return 0
         else:
-            print("\n❌ PDF generation failed")
+            print("\nPDF generation failed")
             return 1
     else:
         # Default: generate Word report
-        print("🚀 Starting auto-report generation...")
+        print("Starting auto-report generation...")
         success = generate_report_from_content()
         
         if success:
-            print("\n✅ Report generation completed successfully!")
+            print("\nReport generation completed successfully!")
             return 0
         else:
-            print("\n❌ Report generation failed")
+            print("\nReport generation failed")
             return 1
 
 

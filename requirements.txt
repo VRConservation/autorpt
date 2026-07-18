@@ -4,3 +4,5 @@ python-docx>=0.8.11
 pathlib
 openpyxl>=3.0.0
 docx2pdf>=0.1.8
+flask>=2.0.0
+markdown>=3.3.0

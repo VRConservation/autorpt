@@ -17,9 +17,7 @@ graph LR;
     B--&gt;D;
     C--&gt;D;
 :::# The current budget has screwed the pooch
-
 We can see that the project is currently under budget and on track. One notable area is the Materials category where we are approaching the allocated amount.
-
 ## Progress&nbsp;
 
 
@@ -28,10 +26,7 @@ We shit the brick on wall hangings
 Analysis framework implemented and tested
 Initial report drafts under review
 Stakeholder feedback sessions scheduled# Challenges
-
 Current challenges and mitigation strategies being implemented:
-
-
 Resource allocation requires careful monitoring due to increased material costs
 Timeline adjustments made to accommodate additional quality assurance requirements
 Technical integration challenges resolved through vendor collaboration

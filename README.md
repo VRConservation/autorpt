@@ -3,7 +3,11 @@
 [![image](https://img.shields.io/pypi/v/autorpt.svg)](https://pypi.python.org/pypi/autorpt)
 [![image](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**autorpt is an automated word and pdf report generator using Excel and Markdown files**
+**autorpt is an automated word, html, and pdf report generator using Excel and Markdown files**
+
+Choose your workflow:
+- **Web Interface**: User-friendly interface in your browser - perfect for non-technical users
+- **Command Line**: Fast, scriptable automation for power users
 
 - User works from a folder with two files in the reports folder of this repo: [content.md](https://github.com/VRConservation/autorpt/blob/main/reports/content.md) and [budget.xlsx](https://github.com/VRConservation/autorpt/blob/main/reports/budget.xlsx). The two files can be downloaded at the links provided and copied to a folder on your local drive.
 - Copy and adapt the files or add your own files to generate the reports.
@@ -12,6 +16,14 @@
 
 ## Features
 
+- **Web Interface**: Modern, browser-based interface with visual editor
+  - **Familiar Experience**: WYSIWYG editor similar to Word/Google Docs
+  - **Drag & Drop**: Easy Excel file uploads
+  - **Tabbed Layout**: Report, Budget, and Preview tabs in a collapsible side panel
+  - **Report Templates**: Pre-built sections for common report types
+  - **Text Snippets**: Save and reuse frequently used text
+  - **File History**: Track all generated reports
+  - **Multiple Formats**: Export to Word, PDF, HTML, or Markdown
 - **Auto-Discovery**: Automatically finds and combines all `.md` and `.xlsx` files in your content folder
 - **Excel Table Integration**: Any Excel file becomes a formatted table in your report
 - **Markdown Content**: Write content in markdown format for easy editing and version control
@@ -25,13 +37,25 @@
 
 ## Quick Start
 
-### Installation
+#### Option 1: Web Interface (Recommended for Most Users)
+
+Launch the web interface in your browser:
 
 ```bash
-pip install autorpt
+auto start
 ```
 
-### Basic Usage
+This opens a user-friendly web interface where you can:
+- Write and edit report content with a visual editor
+- Upload Excel budget files with drag & drop
+- Preview your report in real-time
+- Generate reports in Word, PDF, HTML, or Markdown format
+- Save text snippets for reuse
+- View history of generated reports
+
+**Perfect for**: Non-technical users, collaborative editing, quick report generation
+
+#### Option 2: Command Line (For Power Users & Automation)
 
 1. **Prepare your content in the `reports/` folder**:
     - Edit the provided example files:
@@ -62,9 +86,11 @@ pip install autorpt
     auto --all
     ```
 
+**Perfect for**: Automation scripts, batch processing, CI/CD pipelines
+
 ---
 
-### File Structure
+### Installation File Structure
 
 Your project directory should contain:
 
@@ -126,19 +152,18 @@ Planned activities...
 
 The `[insert budget from budget.xlsx here]` placeholder will be automatically replaced with a formatted budget table in both Word and PDF formats.
 
-# Challenges
-
-Current project challenges...
-
-# Next Period Activities
-
-Planned activities...
-
-````
-
 ## Command Line Options
 
 ```bash
+# Web Interface (opens browser automatically)
+auto start
+
+# Start web server without opening browser
+auto start --no-browser
+
+# Specify custom port for web server
+auto start --port 5000
+
 # Generate Word document from content.md and budget.xlsx
 auto
 
@@ -150,17 +175,12 @@ auto --all
 
 # Enable verbose output
 auto --verbose
-auto --typst --verbose
-````
+auto start --verbose
+```
 
-**How it works:**
+The web server auto-clears any stale process on the configured port before starting, so you'll never hit "port in use" errors.
 
-- **`auto`**: Reads `reports/content.md` and `reports/budget.xlsx`, inserts the budget table at the placeholder, and generates a Word document
-- **`auto --typst`**: Converts `content.md` to Typst format and compiles to PDF using the `report.typ` template
-- **`auto --all`**: Generates both Word and PDF formats
-- **`auto --verbose`**: Shows detailed output during generation
-
-## Requirements
+# Requirements
 
 - **Python 3.9+**
 - **python-docx**: For Word document generation
