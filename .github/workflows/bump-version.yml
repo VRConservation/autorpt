@@ -33,3 +33,7 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-pypi:
+    needs: create-release
+    uses: ./.github/workflows/pypi.yml

@@ -1,5 +1,3 @@
-# Dry run to see what would change (safe)
-bump2version --dry-run --verbose patch
 
 # Actually bump the version
 bump2version patch   # 1.0.0 → 1.0.1
@@ -11,3 +9,6 @@ git push
 git push --tags
 
 or git push && git push --tags
+
+# Dry run to see what would change (safe)
+bump2version --dry-run --verbose patch
