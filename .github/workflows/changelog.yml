@@ -30,7 +30,10 @@ jobs:
 
             - name: Generate changelog
               run: |
-                  generate-changelog --config changelog-config.yml
+                  PREV_TAG=$(git tag --sort=-v:refname | head -2 | tail -1)
+                  generate-changelog --config changelog-config.yml --starting-tag "$PREV_TAG"
+                  VERSION="${GITHUB_REF_NAME#v}"
+                  sed -i "s/^## Unreleased/## ${VERSION}/" docs/changelog.md
 
             - name: Commit and push changes
               run: |
