@@ -1,10 +1,8 @@
 # Installation
 
-## Stable release
-
 To install autorpt, run this command in your terminal:
 
-```
+```bash
 pip install autorpt
 ```
 
@@ -16,6 +14,17 @@ If you don't have [pip](https://pip.pypa.io) installed, this [Python installatio
 
 To install autorpt from sources, run this command in your terminal:
 
-```
+```bash
 pip install git+https://github.com/VRConservation/autorpt
 ```
+
+To install with development dependencies:
+
+```bash
+git clone https://github.com/VRConservation/autorpt.git
+cd autorpt
+pip install -r requirements.txt
+pip install -r requirements_dev.txt
+pip install -e .
+```
+

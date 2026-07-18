@@ -11,3 +11,23 @@
 - Create project reporting template in word from an excel document (budget.xlsx) and rewriting the contents of the content.md file in the root folder
 - Convert docx to pdf using the command line
 - See repository README.md for features and use details
+
+## Quick start
+
+Install:
+
+```bash
+pip install autorpt
+```
+
+Run in terminal with local files:
+
+```bash
+auto
+```
+
+Run from terminal in gui-based app using localhost:8080:
+
+```bash
+auto start
+```

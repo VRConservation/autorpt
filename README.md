@@ -14,6 +14,22 @@ Choose your workflow:
 - See basic usage section below for how to set it up. Videos coming soon.
 - Documentation: https://VRConservation.github.io/autorpt.
 
+## Installation
+
+```bash
+pip install autorpt
+```
+
+To install with development dependencies:
+
+```bash
+git clone https://github.com/VRConservation/autorpt.git
+cd autorpt
+pip install -r requirements.txt
+pip install -r requirements_dev.txt
+pip install -e .
+```
+
 ## Features
 
 - **Web Interface**: Modern, browser-based interface with visual editor
