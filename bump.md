@@ -12,3 +12,5 @@ bump2version major   # 1.0.0 → 2.0.0
 # Push changes and tags
 git push
 git push --tags
+
+or git push && git push --tags
