@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (2026-07-18)
+## 1.1.6 (2026-07-20)
 
 ### Fixes
 
@@ -53,6 +53,18 @@
     
 ### Other
 
+- Bump version: 1.1.5 → 1.1.6.
+    
+- Bump version: 1.1.4 → 1.1.5.
+    
+- Setup.cfg updated.
+    
+- Bug fixing.
+    
+- More mkdocs updates.
+    
+- Updating mkdocs.
+    
 - Bump version: 1.1.3 → 1.1.4, fix PyPI secrets inheritance.
     
 - Bump version: 1.1.2 → 1.1.3.
@@ -123,6 +135,8 @@
     
 ### Updates
 
+- Removed squad and added to gitignore.
+    
 - Updated readme with new commands.
     
 - Changed url in mkdocs.
@@ -145,48 +159,3 @@
     
 - Update readme.
     
-
-## v0.1.2 - 4 Aug, 2025
-
-**Added**
-
-- PDF module documentation in MkDocs
-- Jupyter notebook example for PDF operations (`pdf.ipynb`)
-- Google Colab integration with badge and examples
-- Codespell to development requirements for spell checking
-
-**Fixed**
-
-- Linting errors in codebase
-- Pip install packages for PDF notebook example
-- Hard-coded file paths replaced with general markdown and Excel file handling
-
-**Changed**
-
-- Updated README.md with enhanced documentation
-- Improved index.md and usage.md documentation
-- Enhanced PDF functionality and examples
-
-## v0.1.1 - 28 Jul, 2025
-
-**Changed**
-
-- Convert doc to pdf functionality and cleaned up file structure
-
-## v0.1.0 - 26 Jul, 2025
-
-**Changed**
-
-- Working report creator
-
-## v0.0.2 - 26 Jul, 2025
-
-**Changed**
-
-- Added badges, features, and fixed docs github actions issues
-
-## v0.0.1 - Initial Release
-
-**Changed**
-
-- init commit
