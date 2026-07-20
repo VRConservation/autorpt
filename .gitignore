@@ -103,4 +103,5 @@ ENV/
 .mypy_cache/
 
 # IDE settings
-.vscode/
+.vscode/squad.agent.md
+squad.request.md
