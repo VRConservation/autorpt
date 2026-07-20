@@ -99,54 +99,25 @@
                 </div>
             </div>
 
-            <!-- Tabbed Sections -->
-            <div class="card tab-card">
-                <div class="card-header p-0">
-                    <ul class="nav nav-tabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabReport" type="button" role="tab">
-                                <i class="bi bi-pencil-square"></i> Report
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabBudget" type="button" role="tab">
-                                <i class="bi bi-file-earmark-excel"></i> Budget
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabPreview" type="button" role="tab">
-                                <i class="bi bi-eye"></i> Preview
-                            </button>
-                        </li>
-                    </ul>
+            <!-- Template + Sections in left panel -->
+            <div class="card mb-2" id="templateCard">
+                <div class="card-header py-1 px-2">
+                    <span><i class="bi bi-pencil-square"></i> Report</span>
                 </div>
-                <div class="card-body tab-content">
-                    <!-- Report Tab: sections + template -->
-                    <div class="tab-pane fade show active" id="tabReport" role="tabpanel">
-                        <div class="mb-2">
-                            <label class="form-label small text-muted">Template</label>
-                            <select class="form-select form-select-sm mb-2" id="templateSelect" onchange="loadTemplate()">
-                                <option value="">-- Select Template --</option>
-                            </select>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="form-label mb-0 small text-muted">Sections</label>
-                            <button class="btn btn-sm btn-primary" onclick="addSection()">
-                                <i class="bi bi-plus-circle"></i> Add
-                            </button>
-                        </div>
-                        <div id="sectionsContainer"></div>
+                <div class="card-body py-2">
+                    <div class="mb-2">
+                        <label class="form-label small text-muted">Template</label>
+                        <select class="form-select form-select-sm mb-2" id="templateSelect" onchange="loadTemplate()">
+                            <option value="">-- Select Template --</option>
+                        </select>
                     </div>
-
-                    <!-- Budget Tab -->
-                    <div class="tab-pane fade" id="tabBudget" role="tabpanel">
-                        <p class="text-muted small mb-0">Budget editing shown in main panel &rarr;</p>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label mb-0 small text-muted">Sections</label>
+                        <button class="btn btn-sm btn-primary" onclick="addSection()">
+                            <i class="bi bi-plus-circle"></i> Add
+                        </button>
                     </div>
-
-                    <!-- Preview Tab -->
-                    <div class="tab-pane fade" id="tabPreview" role="tabpanel">
-                        <p class="text-muted small mb-0">Report preview shown in main panel &rarr;</p>
-                    </div>
+                    <div id="sectionsContainer"></div>
                 </div>
             </div>
         </div>
@@ -154,10 +125,30 @@
         <!-- Resize Handle -->
         <div class="panel-resize-handle" id="resizeHandle"></div>
 
-        <!-- Main Panel: toggles between editor, budget, preview -->
+        <!-- Main Panel: tab bar + content -->
         <div class="main-panel" id="mainPanel">
+            <div class="main-tabs">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabReport" type="button" role="tab">
+                            <i class="bi bi-pencil-square"></i> Report
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabBudget" type="button" role="tab">
+                            <i class="bi bi-file-earmark-excel"></i> Budget
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabPreview" type="button" role="tab">
+                            <i class="bi bi-eye"></i> Preview
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
             <!-- Editor (Report tab) -->
-            <div class="card mb-3" id="editorCard">
+            <div class="card mt-2" id="editorCard">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span><i class="bi bi-pencil-square"></i> Report Content</span>
                     <div class="btn-group btn-group-sm">
@@ -195,7 +186,7 @@
             </div>
 
             <!-- Budget (Budget tab) -->
-            <div class="card mb-3 d-none" id="budgetCard">
+            <div class="card mt-2 d-none" id="budgetCard">
                 <div class="card-header">
                     <span><i class="bi bi-file-earmark-excel"></i> Budget</span>
                 </div>
@@ -237,7 +228,7 @@
             </div>
 
             <!-- Preview (Preview tab) -->
-            <div class="card mb-3 d-none" id="previewCard">
+            <div class="card mt-2 d-none" id="previewCard">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span><i class="bi bi-eye"></i> Report Preview</span>
                     <div class="d-flex gap-1">

@@ -164,6 +164,22 @@ body {
     overflow-y: auto;
 }
 
+/* ── Main Panel Tabs ── */
+.main-tabs {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 8px;
+}
+
+.main-tabs .nav-tabs {
+    border-bottom: none;
+}
+
+.main-tabs .nav-link {
+    padding: 10px 20px;
+    font-size: 14px;
+}
+
 /* ── Nav Tabs (propongo2 style) ── */
 .nav-tabs {
     border-bottom: 1px solid var(--border);

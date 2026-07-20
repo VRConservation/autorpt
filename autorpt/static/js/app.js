@@ -3,6 +3,7 @@ let currentSections = [];
 let currentEditor = 'wysiwyg';
 let snippets = [];
 let history = [];
+let uploadedExcelData = { full_table: '', filename: '' };
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -14,6 +15,16 @@ document.addEventListener('DOMContentLoaded', function() {
     loadVersion();
     initializePanelResize();
     
+    // Tab switching - show/hide main panel cards
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function (e) {
+            const target = e.target.getAttribute('data-bs-target');
+            document.getElementById('editorCard').classList.toggle('d-none', target !== '#tabReport');
+            document.getElementById('budgetCard').classList.toggle('d-none', target !== '#tabBudget');
+            document.getElementById('previewCard').classList.toggle('d-none', target !== '#tabPreview');
+        });
+    });
+
     // Auto-save every 30 seconds
     setInterval(autoSave, 30000);
     
@@ -227,13 +238,23 @@ function insertList(type) {
 function updatePreview() {
     const preview = document.getElementById('preview');
     
+    let contentHtml;
     if (currentEditor === 'wysiwyg') {
-        const content = document.getElementById('contentEditor').innerHTML;
-        preview.innerHTML = content;
+        contentHtml = document.getElementById('contentEditor').innerHTML;
     } else {
         const markdown = document.getElementById('contentMarkdown').value;
-        preview.innerHTML = marked.parse(markdown);
+        contentHtml = marked.parse(markdown);
     }
+    
+    // Insert budget table if an Excel file has been uploaded
+    if (uploadedExcelData.full_table) {
+        contentHtml = contentHtml.replace(
+            /\[insert budget from [^\]]*\.xlsx here\]/gi,
+            `<div class="mt-3 mb-3"><h3>Budget Table: ${uploadedExcelData.filename}</h3>${uploadedExcelData.full_table}</div>`
+        );
+    }
+    
+    preview.innerHTML = contentHtml;
 }
 
 // Simple HTML to Markdown conversion
@@ -336,6 +357,7 @@ async function uploadExcel() {
         
         const data = await response.json();
         if (data.success) {
+            uploadedExcelData = { full_table: data.full_table, filename: data.filename };
             document.getElementById('excelPreview').innerHTML = `
                 <div class="alert alert-success p-2 mt-2">
                     <small><strong>${data.filename}</strong><br>
@@ -344,6 +366,7 @@ async function uploadExcel() {
                 ${data.preview}
             `;
             loadExcelFiles();
+            updatePreview();
             showToast('Excel file uploaded', 'success');
         } else {
             showToast(data.error, 'danger');
@@ -400,7 +423,7 @@ async function generateReport(format) {
         const response = await fetch('/api/generate-report', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ format, metadata, content })
+            body: JSON.stringify({ format, metadata, content, excel: uploadedExcelData })
         });
         
         const data = await response.json();
@@ -617,23 +640,5 @@ function toggleTheme() {
     }
 })();
 
-// Toast notification
-function showToast(message, type = 'info') {
-    const toastContainer = document.createElement('div');
-    toastContainer.className = `toast align-items-center text-white bg-${type} border-0`;
-    toastContainer.setAttribute('role', 'alert');
-    toastContainer.innerHTML = `
-        <div class="d-flex">
-            <div class="toast-body">${message}</div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    `;
-    
-    document.body.appendChild(toastContainer);
-    const toast = new bootstrap.Toast(toastContainer);
-    toast.show();
-    
-    setTimeout(() => {
-        toastContainer.remove();
-    }, 5000);
-}
+// Toast notification (no-op - removed visual balloon)
+function showToast(message, type = 'info') {}

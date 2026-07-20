@@ -178,10 +178,12 @@ def upload_excel():
         try:
             df = pd.read_excel(filepath)
             preview = df.head(5).to_html(classes='table table-sm table-bordered', index=False)
+            full_table = df.to_html(classes='table table-sm table-bordered', index=False)
             return jsonify({
                 'success': True,
                 'filename': filename,
                 'preview': preview,
+                'full_table': full_table,
                 'rows': len(df),
                 'columns': list(df.columns)
             })
@@ -265,6 +267,13 @@ def generate_report():
                 parts = content.split('---', 2)
                 if len(parts) >= 3:
                     content = parts[2]
+            # Insert uploaded Excel table into content if available
+            excel_data = data.get('excel', {})
+            if excel_data.get('full_table'):
+                content = content.replace(
+                    '[insert budget from budget.xlsx here]',
+                    f'<h3>Budget Table: {excel_data.get("filename", "budget.xlsx")}</h3>\n{excel_data["full_table"]}'
+                )
             html_content = f'''<!DOCTYPE html>
 <html>
 <head>
